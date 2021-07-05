@@ -7,7 +7,6 @@
 
 		const path = `${season}/${track}`;
 		const recording = recordings.find(({ data_folder }) => data_folder === path);
-
 		return {
 			props: {
 				...recording,

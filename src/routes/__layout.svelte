@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { session } from '$app/stores';
+
 	import Player from '$lib/Player.svelte';
 
 	import '../app.css';
@@ -14,6 +17,8 @@
 	</a>
 
 	<h1>Vault</h1>
+	<a href="/auth">Login</a>
+	<pre>{JSON.stringify($session)}</pre>
 </header>
 
 <slot />
