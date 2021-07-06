@@ -9,13 +9,8 @@ services:
     restart: unless-stopped
     expose:
       - "80"
+    env_file:
+      - .env
     environment:
-      VITE_GRAPHQL_ENDPOINT: https://graphql.wolbodo.nl/v1/graphql
-      PORT: 80
-      VIRTUAL_HOST: members.wolbodo.nl
-      CERT_NAME: wildcard
-      AUTH_JWT_SECRET: $AUTH_JWT_SECRET
-      EMAIL_HOST: $EMAIL_HOST
-      EMAIL_PORT: $EMAIL_PORT
-      EMAIL_USER: $EMAIL_USER
-      EMAIL_PASS: $EMAIL_PASS
+      VIRTUAL_HOST: vault.benderfactory.com
+      LETSENCRYPT_HOST: vault.benderfactory.com
