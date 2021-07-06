@@ -5,7 +5,7 @@ networks:
 
 services:
   app:
-    image: ghcr.io/benderfactory/vault:mainwolbodo/members:latest
+    image: ghcr.io/benderfactory/vault:main
     restart: unless-stopped
     expose:
       - "80"
