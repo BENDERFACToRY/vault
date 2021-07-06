@@ -6,21 +6,24 @@ import { client, gql } from '$lib/graphql';
 
 export const likes = writable([], (set) => {
 	const { user } = get(session);
-	client
-		.request(
-			gql`
-				query myLikes($user_id: uuid!) {
-					like(where: { user_id: { _eq: $user_id } }) {
-						media_id
+
+	if (user) {
+		client
+			.request(
+				gql`
+					query myLikes($user_id: uuid!) {
+						like(where: { user_id: { _eq: $user_id } }) {
+							media_id
+						}
 					}
+				`,
+				{
+					user_id: user.id
 				}
-			`,
-			{
-				user_id: user.id
-			}
-		)
-		.then(({ like }) => set(like.map(({ media_id }) => media_id)))
-		.catch((error) => console.log('error fetching likes', error));
+			)
+			.then(({ like }) => set(like.map(({ media_id }) => media_id)))
+			.catch((error) => console.log('error fetching likes', error));
+	}
 });
 
 export async function addLike(id: string): Promise<void> {
