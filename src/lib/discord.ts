@@ -2,7 +2,6 @@ import { FormData } from 'formdata-node';
 import dotenv from 'dotenv';
 
 const DISCORD_API = 'https://discord.com/api/v9';
-const STATE = '1234';
 
 dotenv.config();
 
@@ -14,20 +13,18 @@ export async function me(token) {
 	});
 }
 
-export function authorizeUrl() {
+export function authorizeUrl(state) {
 	const url = new URL(`${DISCORD_API}/oauth2/authorize`);
 	url.searchParams.append('response_type', 'code');
 	url.searchParams.append('client_id', process.env['VITE_DISCORD_OAUTH_CLIENTID']);
 	url.searchParams.append('scope', 'identify');
-	url.searchParams.append('state', STATE);
+	url.searchParams.append('state', state);
 	url.searchParams.append('redirect_uri', process.env['OAUTH_REDIRECT_URL']);
 	url.searchParams.append('prompt', 'consent');
 	return url;
 }
 
-export async function getUserData(state, code) {
-	if (state !== STATE) return;
-
+export async function getUserData(code) {
 	const formData = new FormData();
 
 	formData.append('client_id', process.env['VITE_DISCORD_OAUTH_CLIENTID']);

@@ -1,26 +1,40 @@
 import { getUserData } from '$lib/discord';
 import { token, client, gql } from '$lib/graphql';
-import { serverToken, createToken } from '$lib/token';
-
-const after = (seconds: number) => {
-	const time = new Date();
-	time.setSeconds(time.getSeconds() + seconds);
-	return time;
-};
+import { setCookie, getCookies, datetimeAfter } from '$lib/cookies';
+import { serverToken, createToken } from '$lib/jwt';
 
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
-export async function get({ query }) {
+export async function get({ query, headers }) {
+	// Checks the oauth redirect code, creates or fetches the user, and stores the oauth token info.
+	const { state } = getCookies(headers.cookie);
+
 	let user;
+	if (!query.has('state') || (!query.has('code') && state !== query.get('state'))) {
+		return {
+			status: 400,
+			body: {
+				message: 'Invalid parameters'
+			}
+		};
+	}
 
 	token.set(serverToken('oauth-redirect'));
 	const { user: oauthUser, access_token, refresh_token, scope, expires_in } = await getUserData(
-		query.get('state'),
 		query.get('code')
 	);
+	console.log('Token call', oauthUser, access_token);
+	const expires = datetimeAfter(parseInt(expires_in));
 
-	const expires = after(parseInt(expires_in));
+	if (!oauthUser) {
+		return {
+			status: 400,
+			body: {
+				message: 'Invalid oauth code'
+			}
+		};
+	}
 
 	// Check if the user exists
 	const {
@@ -63,6 +77,16 @@ export async function get({ query }) {
 	} else {
 		user = discordUser;
 		// Nuke existing tokens
+		client.request(
+			gql`
+				mutation removeTokens($id: uuid!) {
+					delete_oauth_token(where: { user_id: { _eq: $id } }) {
+						affected_rows
+					}
+				}
+			`,
+			{ id: user.id }
+		);
 	}
 
 	// Update the user token
@@ -85,26 +109,28 @@ export async function get({ query }) {
 		}
 	);
 
-	const JWToken = createToken(
-		{
-			id: user.id,
-			roles: ['user'],
-			default_role: 'user'
-		},
-		{
-			subject: user.id
-		}
-	);
+	const JWTUser = {
+		id: user.id,
+		name: user.name,
+		roles: ['user'],
+		default_role: 'user'
+	};
+	const JWToken = createToken(JWTUser, {
+		subject: user.id
+	});
 
 	// Create a JWT for the user session (a day)
 	return {
 		status: 200,
 		headers: {
-			'Set-Cookie': `token=${JWToken}; Path=/; expires=${after(60 * 60 * 24)}; HttpOnly`
+			'Set-Cookie': [
+				setCookie('token', JWToken),
+				setCookie('state', '', { expires: new Date(1970) })
+			]
 		},
 		body: {
-			token: JWToken,
-			user
+			user: JWTUser,
+			token: JWToken
 		}
 	};
 }

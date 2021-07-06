@@ -1,27 +1,66 @@
 <script context="module">
-	export async function load({ fetch }) {
-		const req = await fetch('/tracks.json');
+	import { client, gql } from '$lib/graphql';
+
+	export async function load() {
+		const { media } = await client.request(gql`
+			query allTracks {
+				media {
+					title
+					bpm
+					data_folder
+					id
+					recorded_date
+					stereo_mix
+					tracks
+				}
+			}
+		`);
+
 		return {
 			props: {
-				recordings: await req.json()
+				media
 			}
 		};
 	}
 </script>
 
 <script>
+	import { onMount } from 'svelte';
+
+	import { page, session } from '$app/stores';
 	import { goto } from '$app/navigation';
+
 	import { Table, Play, Like, Tags, Link } from '$lib/table';
 	import { currentTrack } from '$lib/Player.svelte';
 	import { formatDuration } from '$lib/util';
 
-	export let recordings = [];
+	export let media = [];
 
 	const getMetadata = ({ stereo_mix }) => `
     ${stereo_mix.media_info.Channels}ch
     ${stereo_mix.media_info.SamplingRate / 1000}Khz
     ${stereo_mix.media_info.BitDepth}bit
   `;
+
+	onMount(async () => {
+		if ($page.query.has('code') && $page.query.has('state')) {
+			// It's an oauth redirect call.
+			// Resolve the token and redirect the user to a clean url
+			const params = new URLSearchParams({
+				code: $page.query.get('code'),
+				state: $page.query.get('state')
+			});
+
+			const response = await fetch(`/auth/token?${params}`);
+			if (response.ok) {
+				$session = {
+					...$session,
+					...(await response.json())
+				};
+				goto('/');
+			}
+		}
+	});
 </script>
 
 <Table
@@ -41,12 +80,12 @@
 		},
 		{ label: 'metadata', getter: getMetadata },
 		{ label: 'tags', component: Tags, props: ({ tags }) => ({ tags }) },
-		{ label: '', component: Like, props: ({ title }) => ({ title }) }
+		{ label: '', component: Like, props: ({ id }) => ({ id }) }
 	]}
 	rowClass={(row) => ({
 		active: row === $currentTrack
 	})}
-	data={recordings}
+	data={media}
 />
 
 <style>

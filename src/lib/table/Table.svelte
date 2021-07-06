@@ -81,12 +81,14 @@
 		position: sticky;
 	}
 
+	th:first-child,
 	td:first-child {
-		padding-left: env(safe-area-inset-left);
+		padding-left: max(env(safe-area-inset-left), 8px);
 	}
 
+	th:last-child,
 	td:last-child {
-		padding-right: env(safe-area-inset-right);
+		padding-right: max(env(safe-area-inset-right), 8px);
 	}
 
 	@media (hover: hover) {

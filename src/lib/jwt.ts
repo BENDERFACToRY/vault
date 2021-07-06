@@ -1,4 +1,7 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 type JWTSignOptions = {
 	algorithm?: 'HS256' | 'RS256';
