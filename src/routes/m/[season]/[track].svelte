@@ -1,12 +1,30 @@
 <script lang="ts" context="module">
+	import { client, gql } from '$lib/graphql';
+
 	export async function load({ fetch, page }) {
 		const { season, track } = page.params;
-
-		const req = await fetch('/tracks.json');
-		const recordings = await req.json();
-
 		const path = `${season}/${track}`;
-		const recording = recordings.find(({ data_folder }) => data_folder === path);
+
+		const {
+			media: [recording]
+		} = await client.request(
+			gql`
+				query getTrack($data_folder: String!) {
+					media(where: { data_folder: { _eq: $data_folder } }) {
+						title
+						bpm
+						data_folder
+						id
+						recorded_date
+						stereo_mix
+						tracks
+						youtube_url
+						torrent
+					}
+				}
+			`,
+			{ data_folder: path }
+		);
 
 		return {
 			props: {
@@ -39,7 +57,10 @@
 
 {path}
 
-<p>Recorded on {recorded_date}</p>
+{#if recorded_date}
+	<p>Recorded on {recorded_date}</p>
+{/if}
+
 {#if youtube_url}
 	<a href={youtube_url}>Watch on Youtube</a>
 {/if}

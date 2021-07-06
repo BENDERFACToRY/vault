@@ -1,28 +1,16 @@
-<script context="module">
-	import { browser } from '$app/env';
-	import { writable } from 'svelte/store';
-
-	const LIKES = 'likes';
-	const storedLikes = browser && localStorage.getItem(LIKES);
-	const likes = writable(storedLikes ? JSON.parse(storedLikes) : []);
-
-	if (browser) {
-		likes.subscribe((likes) => {
-			localStorage.setItem(LIKES, JSON.stringify(likes));
-		});
-	}
-</script>
-
 <script lang="ts">
-	export let title;
+	import { likes, addLike, removeLike } from '$lib/user';
+	export let id;
 
-	$: like = $likes.includes(title);
+	$: like = $likes.includes(id);
 
 	const toggle = () => {
 		if (like) {
-			$likes = $likes.filter((track) => track !== title);
+			$likes = $likes.filter((_id) => _id !== id);
+			removeLike(id);
 		} else {
-			$likes = [...$likes, title];
+			$likes = [...$likes, id];
+			addLike(id);
 		}
 	};
 </script>

@@ -1,4 +1,26 @@
+<script context="module">
+	import { token } from '$lib/graphql';
+
+	/**
+	 * @type {import('@sveltejs/kit').Load}
+	 */
+	export async function load({ page, session }) {
+		if (session.user) {
+			token.set(session.user.token);
+		} else if (page.path.startsWith('/u')) {
+			return {
+				status: 302,
+				redirect: '/'
+			};
+		}
+
+		return {};
+	}
+</script>
+
 <script lang="ts">
+	import { session } from '$app/stores';
+
 	import Player from '$lib/Player.svelte';
 
 	import '../app.css';
@@ -14,6 +36,13 @@
 	</a>
 
 	<h1>Vault</h1>
+
+	{#if $session.user}
+		<a href="/auth/logout">Logout</a>
+		<a href="/u/{$session.user.name.toLowerCase()}">{$session.user.name}</a>
+	{:else}
+		<a href="/auth/login">Login</a>
+	{/if}
 </header>
 
 <slot />
@@ -49,5 +78,11 @@
 		margin: 0;
 		font-size: 4rem;
 		margin-left: 1rem;
+	}
+
+	pre {
+		display: block;
+		overflow: auto;
+		font-size: 5px;
 	}
 </style>

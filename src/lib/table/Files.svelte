@@ -7,11 +7,11 @@
 	export let ogg_bytes;
 	export let mp3;
 	export let mp3_bytes;
-	export let id;
-	export let name;
-	export let patch_notes;
-	export let ondisk_root;
-	export let media_info;
+	// export let id;
+	// export let name;
+	// export let patch_notes;
+	// export let ondisk_root;
+	// export let media_info;
 
 	const sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
 	const getBytes = (bytes) => {

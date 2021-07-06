@@ -13,6 +13,9 @@
 </button>
 
 <style>
+	button {
+		margin: 0;
+	}
 	.playing {
 		background: none;
 		filter: var(--icon-filter-red);
