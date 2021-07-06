@@ -12,5 +12,6 @@ services:
     env_file:
       - .env
     environment:
+      PORT: 80
       VIRTUAL_HOST: vault.benderfactory.com
       LETSENCRYPT_HOST: vault.benderfactory.com
