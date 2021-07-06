@@ -69,8 +69,8 @@ export async function get({ query, headers }) {
 				}
 			`,
 			{
-				name: user.username,
-				discordId: user.id
+				name: oauthUser.username,
+				discordId: oauthUser.id
 			}
 		);
 		user = createdUser;
