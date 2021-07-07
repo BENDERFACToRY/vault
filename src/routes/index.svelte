@@ -4,7 +4,7 @@
 	export async function load() {
 		const { media } = await client.request(gql`
 			query allTracks {
-				media {
+				media(order_by: [{ likes_aggregate: { count: desc } }, { title: asc }]) {
 					title
 					bpm
 					data_folder
@@ -12,6 +12,11 @@
 					recorded_date
 					stereo_mix
 					tracks
+					likes_aggregate {
+						aggregate {
+							count
+						}
+					}
 				}
 			}
 		`);
@@ -80,6 +85,14 @@
 		},
 		{ label: 'metadata', getter: getMetadata },
 		{ label: 'tags', component: Tags, props: ({ tags }) => ({ tags }) },
+		{
+			label: 'likes',
+			getter: ({
+				likes_aggregate: {
+					aggregate: { count }
+				}
+			}) => count
+		},
 		{ label: '', component: Like, props: ({ id }) => ({ id }) }
 	]}
 	rowClass={(row) => ({
