@@ -42,46 +42,47 @@ export async function get() {
 		})
 	);
 
-	const tracks = data
-		.flatMap(({ title, path, recordings }) =>
-			recordings.map((recording) => ({
-				...recording,
-				season: title,
-				data_folder: `${path}/${recording.data_folder}`
-			}))
-		);
+	const tracks = data.flatMap(({ title, path, recordings }) =>
+		recordings.map((recording) => ({
+			...recording,
+			season: title,
+			data_folder: `${path}/${recording.data_folder}`
+		}))
+	);
 
-	const t = serverToken('scrape-ipfs');
-	console.log(t);
-	token.set(t);
+	token.set(serverToken('scrape-ipfs'));
+
+	const body = await client.request(
+		gql`
+			mutation updateMedia($tracks: [media_insert_input!]!) {
+				insert_media(
+					objects: $tracks
+					on_conflict: {
+						constraint: media_data_folder_key
+						update_columns: [
+							bpm
+							recorded_date
+							season
+							stereo_mix
+							title
+							torrent
+							tracks
+							youtube_url
+						]
+					}
+				) {
+					affected_rows
+				}
+			}
+		`,
+		{
+			tracks: tracks.map(({ tags, recorded_date, ...rest }) => rest)
+		}
+	);
+
+	token.set(null);
 
 	return {
-		body: await client.request(
-			gql`
-				mutation updateMedia($tracks: [media_insert_input!]!) {
-					insert_media(
-						objects: $tracks
-						on_conflict: {
-							constraint: media_data_folder_key
-							update_columns: [
-								bpm
-								recorded_date
-								season
-								stereo_mix
-								title
-								torrent
-								tracks
-								youtube_url
-							]
-						}
-					) {
-						affected_rows
-					}
-				}
-			`,
-			{
-				tracks: tracks.map(({ tags, recorded_date, ...rest }) => rest)
-			}
-		)
+		body
 	};
 }

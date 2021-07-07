@@ -31,6 +31,8 @@ export async function get({ headers }) {
 		console.log('Error logging out:', e);
 	}
 
+	token.set(null);
+
 	// Remove cookie
 	return {
 		status: 302,

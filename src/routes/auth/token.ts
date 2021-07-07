@@ -28,6 +28,7 @@ export async function get({ query, headers }) {
 	const expires = datetimeAfter(parseInt(expires_in));
 
 	if (!oauthUser) {
+		token.set(null);
 		return {
 			status: 400,
 			body: {
@@ -118,6 +119,8 @@ export async function get({ query, headers }) {
 	const JWToken = createToken(JWTUser, {
 		subject: user.id
 	});
+
+	token.set(null);
 
 	// Create a JWT for the user session (a day)
 	return {
