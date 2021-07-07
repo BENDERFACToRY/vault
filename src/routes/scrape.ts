@@ -49,8 +49,7 @@ export async function get() {
 				season: title,
 				data_folder: `${path}/${recording.data_folder}`
 			}))
-		)
-		.slice(5);
+		);
 
 	const t = serverToken('scrape-ipfs');
 	console.log(t);
