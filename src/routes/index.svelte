@@ -58,9 +58,10 @@
 
 			const response = await fetch(`/auth/token?${params}`);
 			if (response.ok) {
+				const data = await response.json();
 				$session = {
 					...$session,
-					...(await response.json())
+					...data
 				};
 				goto('/');
 			}

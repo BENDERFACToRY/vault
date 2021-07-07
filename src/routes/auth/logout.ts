@@ -1,19 +1,20 @@
 import { token, client, gql } from '$lib/graphql';
 import { setCookie, getCookies } from '$lib/cookies';
-import { verifyToken, serverToken } from '$lib/jwt';
+import { verifyToken, withServerToken } from '$lib/jwt';
 
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
-export async function get({ headers }) {
+export const get = withServerToken(
+	'auth-logout',
+	token
+)(async function get({ headers }) {
 	const { token: cookieToken } = getCookies(headers.cookie);
 
 	try {
 		// Verify token
 		if (cookieToken) {
 			const user = await verifyToken(cookieToken);
-
-			token.set(serverToken('auth-logout'));
 
 			// Remove oauth token
 			client.request(
@@ -31,8 +32,6 @@ export async function get({ headers }) {
 		console.log('Error logging out:', e);
 	}
 
-	token.set(null);
-
 	// Remove cookie
 	return {
 		status: 302,
@@ -41,4 +40,4 @@ export async function get({ headers }) {
 			location: '/'
 		}
 	};
-}
+});

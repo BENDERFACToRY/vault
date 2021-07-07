@@ -1,6 +1,6 @@
 // Scrapes IPFS for all media
 import { token, client, gql } from '$lib/graphql';
-import { serverToken } from '$lib/jwt';
+import { withServerToken } from '$lib/jwt';
 
 const cache = new Map();
 
@@ -29,7 +29,10 @@ const fetchIPFS = async (url, { retries = 3, retryTime = 1000, ...opts } = {}) =
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
-export async function get() {
+export const get = withServerToken(
+	'scrape-ipfs',
+	token
+)(async function get() {
 	const seasons = await fetchIPFS(`https://ipfs.benderfactory.com/metadata.json`);
 
 	const data = await Promise.all(
@@ -49,8 +52,6 @@ export async function get() {
 			data_folder: `${path}/${recording.data_folder}`
 		}))
 	);
-
-	token.set(serverToken('scrape-ipfs'));
 
 	const body = await client.request(
 		gql`
@@ -80,9 +81,7 @@ export async function get() {
 		}
 	);
 
-	token.set(null);
-
 	return {
 		body
 	};
-}
+});

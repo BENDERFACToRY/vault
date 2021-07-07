@@ -9,9 +9,11 @@ export const token = writable(null);
 export const client = new GraphQLClient(GRAPHQL_ENDPOINT);
 
 token.subscribe((token) => {
-	if (token) {
-		client.setHeaders({
-			authorization: `Bearer ${token}`
-		});
-	}
+	client.setHeaders(
+		token
+			? {
+					authorization: `Bearer ${token}`
+			  }
+			: {}
+	);
 });

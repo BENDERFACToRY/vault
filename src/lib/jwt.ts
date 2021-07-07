@@ -54,3 +54,28 @@ export function serverToken(username: string, id = -1, role = 'server'): string 
 		}
 	);
 }
+
+// calls a (async) function and only when that function is running will set the token.
+export const withServerToken = (name, token) => (func) => (...args) => {
+	token.set(serverToken(name));
+	try {
+		const result = func(...args);
+		if (result instanceof Promise) {
+			return result
+				.then((res) => {
+					token.set(null);
+					return res;
+				})
+				.catch((error) => {
+					token.set(null);
+					throw error;
+				});
+		} else {
+			token.set(null);
+			return result;
+		}
+	} catch (error) {
+		token.set(null);
+		throw error;
+	}
+};

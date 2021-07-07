@@ -8,10 +8,8 @@ export async function getSession(request) {
 		try {
 			const user = await verifyToken(token);
 			return {
-				user: {
-					...user,
-					token
-				}
+				user,
+				token
 			};
 		} catch (e) {
 			console.log('err validating token', e);

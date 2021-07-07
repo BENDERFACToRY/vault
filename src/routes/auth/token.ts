@@ -1,12 +1,15 @@
 import { getUserData } from '$lib/discord';
 import { token, client, gql } from '$lib/graphql';
 import { setCookie, getCookies, datetimeAfter } from '$lib/cookies';
-import { serverToken, createToken } from '$lib/jwt';
+import { withServerToken, createToken } from '$lib/jwt';
 
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
-export async function get({ query, headers }) {
+export const get = withServerToken(
+	'oauth-token',
+	token
+)(async function get({ query, headers }) {
 	// Checks the oauth redirect code, creates or fetches the user, and stores the oauth token info.
 	const { state } = getCookies(headers.cookie);
 
@@ -20,15 +23,12 @@ export async function get({ query, headers }) {
 		};
 	}
 
-	token.set(serverToken('oauth-redirect'));
 	const { user: oauthUser, access_token, refresh_token, scope, expires_in } = await getUserData(
 		query.get('code')
 	);
-	console.log('Token call', oauthUser, access_token);
 	const expires = datetimeAfter(parseInt(expires_in));
 
 	if (!oauthUser) {
-		token.set(null);
 		return {
 			status: 400,
 			body: {
@@ -120,8 +120,6 @@ export async function get({ query, headers }) {
 		subject: user.id
 	});
 
-	token.set(null);
-
 	// Create a JWT for the user session (a day)
 	return {
 		status: 200,
@@ -136,4 +134,4 @@ export async function get({ query, headers }) {
 			token: JWToken
 		}
 	};
-}
+});

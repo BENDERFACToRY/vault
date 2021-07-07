@@ -5,13 +5,15 @@
 	 * @type {import('@sveltejs/kit').Load}
 	 */
 	export async function load({ page, session }) {
-		if (session.user) {
-			token.set(session.user.token);
+		if (session.token) {
+			token.set(session.token);
 		} else if (page.path.startsWith('/u')) {
 			return {
 				status: 302,
 				redirect: '/'
 			};
+		} else {
+			token.set(null);
 		}
 
 		return {};
