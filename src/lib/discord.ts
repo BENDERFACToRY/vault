@@ -24,6 +24,14 @@ export function authorizeUrl(state) {
 	return url;
 }
 
+export async function getGuildMember(guildId, userId) {
+	const res = await fetch(`${DISCORD_API}/guilds/${guildId}/members/{${userId}}`);
+	const data = await res.json();
+	console.log('Got guildmember', data);
+
+	return data;
+}
+
 export async function getUserData(code) {
 	const formData = new FormData();
 
@@ -44,7 +52,6 @@ export async function getUserData(code) {
 
 		const userResponse = await me(access_token);
 		const user = await userResponse.json();
-
 		return {
 			access_token,
 			expires_in,

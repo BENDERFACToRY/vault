@@ -13,6 +13,7 @@
 				redirect: '/'
 			};
 		} else {
+			console.log('Load layout -> set token null');
 			token.set(null);
 		}
 
@@ -39,12 +40,14 @@
 
 	<h1>Vault</h1>
 
-	{#if $session.user}
-		<a href="/auth/logout">Logout</a>
-		<a href="/u/{$session.user.name.toLowerCase()}">{$session.user.name}</a>
-	{:else}
-		<a href="/auth/login">Login</a>
-	{/if}
+	<nav>
+		{#if $session.user}
+			<a href="/auth/logout">Logout</a>
+			<a href="/u/{$session.user.name.toLowerCase()}">{$session.user.name}</a>
+		{:else}
+			<a href="/auth/login">Login</a>
+		{/if}
+	</nav>
 </header>
 
 <slot />
@@ -54,6 +57,18 @@
 </footer>
 
 <style>
+	nav {
+		flex: 1;
+		display: flex;
+		justify-content: end;
+	}
+	nav a {
+		align-self: flex-end;
+		padding: 0.5rem;
+		margin: 0.5rem;
+		margin-bottom: -5px;
+		background: var(--gray-light);
+	}
 	header {
 		display: flex;
 

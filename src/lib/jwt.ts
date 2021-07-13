@@ -35,10 +35,10 @@ export function parseToken(token: string): JSON {
 	return jwt.decode(token);
 }
 
-export async function verifyToken(token: string): Promise<JSON> {
+export async function verifyToken(token: string, options: any): Promise<JSON> {
 	const SECRET = JSON.parse(process.env['VAULT_JWT_SECRET']);
 
-	return await jwt.verify(token, SECRET.key);
+	return await jwt.verify(token, SECRET.key, options);
 }
 
 export function serverToken(username: string, id = -1, role = 'server'): string {
@@ -54,28 +54,3 @@ export function serverToken(username: string, id = -1, role = 'server'): string 
 		}
 	);
 }
-
-// calls a (async) function and only when that function is running will set the token.
-export const withServerToken = (name, token) => (func) => (...args) => {
-	token.set(serverToken(name));
-	try {
-		const result = func(...args);
-		if (result instanceof Promise) {
-			return result
-				.then((res) => {
-					token.set(null);
-					return res;
-				})
-				.catch((error) => {
-					token.set(null);
-					throw error;
-				});
-		} else {
-			token.set(null);
-			return result;
-		}
-	} catch (error) {
-		token.set(null);
-		throw error;
-	}
-};

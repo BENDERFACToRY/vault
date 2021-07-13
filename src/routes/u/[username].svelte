@@ -19,7 +19,27 @@
 {#await client.request(gql`
 	query getUser {
 		user {
+			id
 			name
+			comments {
+				media {
+					id
+				}
+				text
+			}
+			likes {
+				media {
+					title
+				}
+			}
+			discord {
+				username
+				avatar
+				bot
+				discriminator
+				email
+				system
+			}
 		}
 	}
 `)}

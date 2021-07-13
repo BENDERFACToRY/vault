@@ -1,15 +1,15 @@
-import { token, client, gql } from '$lib/graphql';
+import { getClient, gql } from '$lib/graphql';
 import { setCookie, getCookies } from '$lib/cookies';
-import { verifyToken, withServerToken } from '$lib/jwt';
+import { verifyToken, serverToken } from '$lib/jwt';
+
+const { client, token } = getClient();
 
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
-export const get = withServerToken(
-	'auth-logout',
-	token
-)(async function get({ headers }) {
+export const get = async function get({ headers }) {
 	const { token: cookieToken } = getCookies(headers.cookie);
+	token.set(serverToken('auth-logout'));
 
 	try {
 		// Verify token
@@ -40,4 +40,4 @@ export const get = withServerToken(
 			location: '/'
 		}
 	};
-});
+};

@@ -1,45 +1,36 @@
+import { get as getStore } from 'svelte/store';
 import { getUserData } from '$lib/discord';
-import { token, client, gql } from '$lib/graphql';
+import { getClient, gql } from '$lib/graphql';
 import { setCookie, getCookies, datetimeAfter } from '$lib/cookies';
-import { withServerToken, createToken } from '$lib/jwt';
+import { serverToken, createToken, verifyToken } from '$lib/jwt';
 
-/**
- * @type {import('@sveltejs/kit').RequestHandler}
- */
-export const get = withServerToken(
-	'oauth-token',
-	token
-)(async function get({ query, headers }) {
-	// Checks the oauth redirect code, creates or fetches the user, and stores the oauth token info.
-	const { state } = getCookies(headers.cookie);
+/* Token endpoint is called for fetching JWTokens:
+ - in a discord flow,
+ - refresh jwt
+*/
 
+type User = {
+	id: string;
+	name: string;
+};
+
+const { client, token } = getClient();
+
+async function discordLogin({ query }): Promise<User> {
 	let user;
-	if (!query.has('state') || (!query.has('code') && state !== query.get('state'))) {
-		return {
-			status: 400,
-			body: {
-				message: 'Invalid parameters'
-			}
-		};
-	}
-
-	const { user: oauthUser, access_token, refresh_token, scope, expires_in } = await getUserData(
+	// Discord fetch
+	const { user: discordUser, access_token, refresh_token, scope, expires_in } = await getUserData(
 		query.get('code')
 	);
-	const expires = datetimeAfter(parseInt(expires_in));
 
-	if (!oauthUser) {
-		return {
-			status: 400,
-			body: {
-				message: 'Invalid oauth code'
-			}
-		};
+	if (!discordUser) {
+		return;
 	}
 
 	// Check if the user exists
+	console.log('Searching user:', discordUser.id, getStore(token));
 	const {
-		user: [discordUser]
+		user: [existingUser]
 	} = await client.request(
 		gql`
 			query getUserByDiscordId($discordId: String!) {
@@ -49,10 +40,11 @@ export const get = withServerToken(
 				}
 			}
 		`,
-		{ discordId: oauthUser.id }
+		{ discordId: discordUser.id }
 	);
 
-	if (!discordUser) {
+	if (!existingUser) {
+		console.log('creating user:', discordUser);
 		// Create the user
 		const {
 			user: {
@@ -60,8 +52,23 @@ export const get = withServerToken(
 			}
 		} = await client.request(
 			gql`
-				mutation createUser($name: String!, $discordId: String!) {
-					user: insert_user(objects: { name: $name, discord_id: $discordId }) {
+				mutation createUser(
+					$name: String!
+					$discordUser: discord_insert_input!
+					$update_columns: [discord_update_column!] = [bot, avatar, email]
+				) {
+					user: insert_user(
+						objects: {
+							name: $name
+							discord: {
+								data: $discordUser
+								on_conflict: {
+									constraint: discord_pkey
+									update_columns: [username, avatar, bot, discriminator, email, system, username]
+								}
+							}
+						}
+					) {
 						returning {
 							id
 							name
@@ -70,13 +77,18 @@ export const get = withServerToken(
 				}
 			`,
 			{
-				name: oauthUser.username,
-				discordId: oauthUser.id
+				name: discordUser.username,
+				discord: Object.fromEntries(
+					Object.entries(discordUser).filter(([key]) =>
+						['id', 'username', 'discriminator', 'avatar', 'bot', 'system', 'email'].includes(key)
+					)
+				)
 			}
 		);
 		user = createdUser;
 	} else {
-		user = discordUser;
+		console.log('found user:', discordUser.name);
+		user = existingUser;
 		// Nuke existing tokens
 		client.request(
 			gql`
@@ -105,10 +117,49 @@ export const get = withServerToken(
 				access_token,
 				refresh_token,
 				scope: scope.split(' '),
-				expires
+				expires: datetimeAfter(parseInt(expires_in))
 			}
 		}
 	);
+
+	return user;
+}
+
+/**
+ * @type {import('@sveltejs/kit').RequestHandler}
+ */
+export async function get({ query, headers }) {
+	// Checks the oauth redirect code, creates or fetches the user, and stores the oauth token info.
+	const { state } = getCookies(headers.cookie);
+	token.set(serverToken('oauth-token'));
+
+	let user;
+	if (query.has('state') && query.has('code') && state === query.get('state')) {
+		user = await discordLogin({ query });
+	}
+
+	// Check token
+	const { token: cookieToken } = getCookies(headers.cookie);
+
+	try {
+		// Verify token
+		if (cookieToken) {
+			const JWTUser = await verifyToken(cookieToken, { ignoreExpiration: true });
+			console.log('Got JWTUser', JWTUser);
+		}
+	} catch (e) {
+		console.log('Invalid token');
+	}
+
+	if (!user) {
+		return {
+			status: 400,
+			body: {
+				message: 'Invalid parameters'
+			}
+		};
+	}
+	console.log('Got user, creating token:', user);
 
 	const JWTUser = {
 		id: user.id,
@@ -117,7 +168,7 @@ export const get = withServerToken(
 		default_role: 'user'
 	};
 	const JWToken = createToken(JWTUser, {
-		subject: user.id
+		subject: user.id.toString()
 	});
 
 	// Create a JWT for the user session (a day)
@@ -125,7 +176,7 @@ export const get = withServerToken(
 		status: 200,
 		headers: {
 			'Set-Cookie': [
-				setCookie('token', JWToken),
+				setCookie('token', JWToken, { expires: datetimeAfter(10) }), // a day: 60 * 60 * 24 }),
 				setCookie('state', '', { expires: new Date(1970) })
 			]
 		},
@@ -134,4 +185,4 @@ export const get = withServerToken(
 			token: JWToken
 		}
 	};
-});
+}
