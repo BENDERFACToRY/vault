@@ -35,7 +35,7 @@ export function parseToken(token: string): JSON {
 	return jwt.decode(token);
 }
 
-export async function verifyToken(token: string, options: any): Promise<JSON> {
+export async function verifyToken(token: string, options?: any): Promise<JSON> {
 	const SECRET = JSON.parse(process.env['VAULT_JWT_SECRET']);
 
 	return await jwt.verify(token, SECRET.key, options);

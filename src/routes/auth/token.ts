@@ -168,6 +168,7 @@ export async function get({ query, headers }) {
 		default_role: 'user'
 	};
 	const JWToken = createToken(JWTUser, {
+		expiresIn: '1 second',
 		subject: user.id.toString()
 	});
 
@@ -176,7 +177,7 @@ export async function get({ query, headers }) {
 		status: 200,
 		headers: {
 			'Set-Cookie': [
-				setCookie('token', JWToken, { expires: datetimeAfter(10) }), // a day: 60 * 60 * 24 }),
+				setCookie('token', JWToken, { expires: datetimeAfter(60 * 60 * 25) }),
 				setCookie('state', '', { expires: new Date(1970) })
 			]
 		},
