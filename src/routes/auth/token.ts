@@ -1,5 +1,5 @@
 import { get as getStore } from 'svelte/store';
-import { getUserData } from '$lib/discord';
+import { API } from '$lib/discord';
 import { getClient, gql } from '$lib/graphql';
 import { setCookie, getCookies, datetimeAfter } from '$lib/cookies';
 import { serverToken, createToken, verifyToken } from '$lib/jwt';
@@ -19,9 +19,13 @@ const { client, token } = getClient();
 async function discordLogin({ query }): Promise<User> {
 	let user;
 	// Discord fetch
-	const { user: discordUser, access_token, refresh_token, scope, expires_in } = await getUserData(
-		query.get('code')
-	);
+	const {
+		user: discordUser,
+		access_token,
+		refresh_token,
+		scope,
+		expires_in
+	} = await API.getUserData(query.get('code'));
 
 	if (!discordUser) {
 		return;
@@ -138,6 +142,32 @@ export async function get({ query, headers }) {
 		user = await discordLogin({ query });
 	}
 
+	if (query.has('application') && query.has('secret')) {
+		// Tokens for the applications
+		const application = query.get('application');
+		const secret = query.get('secret');
+
+		if (application === 'gatekeeper' && secret === process.env['GATEKEEPER_SECRET']) {
+			return {
+				status: 200,
+				body: {
+					token: createToken(
+						{
+							id: '-1',
+							name: 'gatekeeper',
+							roles: ['gatekeeper'],
+							default_role: 'gatekeeper'
+						},
+						{
+							expiresIn: '30 seconds',
+							subject: '-1'
+						}
+					)
+				}
+			};
+		}
+	}
+
 	// Check token
 	const { token: cookieToken } = getCookies(headers.cookie);
 
@@ -168,7 +198,7 @@ export async function get({ query, headers }) {
 		default_role: 'user'
 	};
 	const JWToken = createToken(JWTUser, {
-		expiresIn: '1 second',
+		expiresIn: '1 day',
 		subject: user.id.toString()
 	});
 

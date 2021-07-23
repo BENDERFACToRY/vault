@@ -1,3 +1,4 @@
+import { getClient, gql } from '$lib/graphql';
 import { verifyToken, createToken } from '$lib/jwt';
 import { getCookies, setCookie, datetimeAfter } from '$lib/cookies';
 
@@ -45,14 +46,34 @@ export async function handle({ request, resolve }) {
 
 /** @type {import('@sveltejs/kit').GetSession} */
 export async function getSession(request) {
-	const { token } = getCookies(request.headers.cookie);
+	const { token: headerToken } = getCookies(request.headers.cookie);
 
-	if (token) {
+	if (headerToken) {
 		try {
-			const user = await verifyToken(token);
+			const user = await verifyToken(headerToken);
+
+			const { token, client } = getClient();
+			token.set(headerToken);
+
+			const { userData } = await client.request(
+				gql`
+					query getUserToken($id: uuid!) {
+						userData: user_by_pk(id: $id) {
+							token {
+								access_token
+							}
+							discord {
+								id
+							}
+						}
+					}
+				`,
+				{ id: user.id }
+			);
 			return {
 				user,
-				token
+				userData,
+				token: headerToken
 			};
 		} catch (e) {
 			console.log('err validating token', e);

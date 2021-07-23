@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-import { authorizeUrl } from '$lib/discord';
+import { API } from '$lib/discord';
 import { setCookie, datetimeAfter } from '$lib/cookies';
 
 /**
@@ -12,7 +12,7 @@ export async function get() {
 	return {
 		status: 302,
 		headers: {
-			location: authorizeUrl(state),
+			location: API.authorizeUrl(state),
 			'Set-Cookie': setCookie('state', state, { expires: datetimeAfter(300) })
 		}
 	};

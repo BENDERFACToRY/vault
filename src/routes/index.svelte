@@ -69,38 +69,42 @@
 	});
 </script>
 
-<Table
-	on:click={({ detail: { data_folder } }) => goto(`m/${data_folder}`)}
-	columns={[
-		{ label: '', component: Play, props: (track) => ({ track }) },
-		{
-			label: 'title',
-			component: Link,
-			props: ({ title, data_folder }) => ({ href: `m/${data_folder}`, text: title })
-		},
-		{ label: 'stems', getter: ({ tracks }) => tracks.length },
-		{
-			label: 'duration',
-			getter: ({ stereo_mix }) => formatDuration(stereo_mix.media_info.Duration),
-			style: 'text-align: right;'
-		},
-		{ label: 'metadata', getter: getMetadata },
-		{ label: 'tags', component: Tags, props: ({ tags }) => ({ tags }) },
-		{
-			label: 'likes',
-			getter: ({
-				likes_aggregate: {
-					aggregate: { count }
-				}
-			}) => count
-		},
-		{ label: '', component: Like, props: ({ id }) => ({ id }) }
-	]}
-	rowClass={(row) => ({
-		active: row === $currentTrack
-	})}
-	data={media}
-/>
+{#if $session.user}
+	<Table
+		on:click={({ detail: { data_folder } }) => goto(`m/${data_folder}`)}
+		columns={[
+			{ label: '', component: Play, props: (track) => ({ track }) },
+			{
+				label: 'title',
+				component: Link,
+				props: ({ title, data_folder }) => ({ href: `m/${data_folder}`, text: title })
+			},
+			{ label: 'stems', getter: ({ tracks }) => tracks.length },
+			{
+				label: 'duration',
+				getter: ({ stereo_mix }) => formatDuration(stereo_mix.media_info.Duration),
+				style: 'text-align: right;'
+			},
+			{ label: 'metadata', getter: getMetadata },
+			{ label: 'tags', component: Tags, props: ({ tags }) => ({ tags }) },
+			{
+				label: 'likes',
+				getter: ({
+					likes_aggregate: {
+						aggregate: { count }
+					}
+				}) => count
+			},
+			{ label: '', component: Like, props: ({ id }) => ({ id }) }
+		]}
+		rowClass={(row) => ({
+			active: row === $currentTrack
+		})}
+		data={media}
+	/>
+{:else}
+	<p>You need to login using <a href="auth/login">discord</a> in order to view any tracks</p>
+{/if}
 
 <style>
 	:global(table tr.active) {

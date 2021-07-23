@@ -73,6 +73,7 @@
 		background: var(--gray);
 		box-shadow: 0 2px var(--black);
 		text-align: left;
+		z-index: 10;
 	}
 
 	th {

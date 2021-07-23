@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { client, gql } from '$lib/graphql';
+	import { session } from '$app/stores';
 </script>
+
+<pre>{JSON.stringify($session, null, 2)}</pre>
 
 {#await client.request(gql`
 	query getLikes {
