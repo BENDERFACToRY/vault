@@ -56,23 +56,8 @@ async function discordLogin({ query }): Promise<User> {
 			}
 		} = await client.request(
 			gql`
-				mutation createUser(
-					$name: String!
-					$discordUser: discord_insert_input!
-					$update_columns: [discord_update_column!] = [bot, avatar, email]
-				) {
-					user: insert_user(
-						objects: {
-							name: $name
-							discord: {
-								data: $discordUser
-								on_conflict: {
-									constraint: discord_pkey
-									update_columns: [username, avatar, bot, discriminator, email, system, username]
-								}
-							}
-						}
-					) {
+				mutation createUser($name: String!, $discordUser: discord_insert_input!) {
+					user: insert_user(objects: { name: $name, discord: { data: $discordUser } }) {
 						returning {
 							id
 							name
@@ -82,7 +67,7 @@ async function discordLogin({ query }): Promise<User> {
 			`,
 			{
 				name: discordUser.username,
-				discord: Object.fromEntries(
+				discordUser: Object.fromEntries(
 					Object.entries(discordUser).filter(([key]) =>
 						['id', 'username', 'discriminator', 'avatar', 'bot', 'system', 'email'].includes(key)
 					)

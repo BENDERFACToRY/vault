@@ -1,6 +1,17 @@
 <script lang="ts">
-	import { client, gql } from '$lib/graphql';
+	import { client, gql, getSubscriptionClient, token } from '$lib/graphql';
 	import { session } from '$app/stores';
+
+	const { subscribe } = getSubscriptionClient($token);
+
+	const data = subscribe(gql`
+		subscription {
+			discord {
+				username
+				roles
+			}
+		}
+	`);
 </script>
 
 <pre>{JSON.stringify($session, null, 2)}</pre>
@@ -18,6 +29,11 @@
 {:then data}
 	<pre>{JSON.stringify(data, null, 2)}</pre>
 {/await}
+
+<article>
+	<h2>Data:</h2>
+	<pre>{JSON.stringify($data, null, 2)}</pre>
+</article>
 
 {#await client.request(gql`
 	query getUser {
