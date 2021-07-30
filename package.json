@@ -47,5 +47,8 @@
   "lint-staged": {
     "*.{js,ts,svelte}": "eslint --cache --fix",
     "*.{js,ts,css,md,svelte}": "prettier --check"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.2"
   }
 }
