@@ -1,4 +1,4 @@
-import { get, writable, readable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { browser } from '$app/env';
 // import fetch from 'cross-fetch'
 import { GRAPHQL_ENDPOINT, GRAPHQL_WS_ENDPOINT } from '$lib/config';
@@ -10,7 +10,7 @@ import {
 	InMemoryCache,
 	HttpLink,
 	concat
-} from '@apollo/client/core';
+} from '@apollo/client/core/core.cjs.js';
 
 export function createClient(authToken = '') {
 	const token = writable<string>(authToken);
