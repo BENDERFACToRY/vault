@@ -30,6 +30,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@apollo/client": "^3.3.21",
     "@fontsource/material-icons-two-tone": "^4.4.5",
     "@fontsource/maven-pro": "^4.4.5",
     "cross-fetch": "^3.1.4",
@@ -39,7 +40,9 @@
     "graphql-request": "^3.4.0",
     "graphql-ws": "^5.3.0",
     "husky": "^6.0.0",
-    "jsonwebtoken": "^8.5.1"
+    "jsonwebtoken": "^8.5.1",
+    "subscriptions-transport-ws": "^0.9.19",
+    "svelte-apollo": "npm:@dxlb/svelte-apollo"
   },
   "lint-staged": {
     "*.{js,ts,svelte}": "eslint --cache --fix",

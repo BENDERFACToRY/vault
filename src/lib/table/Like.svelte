@@ -1,16 +1,48 @@
 <script lang="ts">
-	import { likes, addLike, removeLike } from '$lib/user';
+	import { query, mutation } from 'svelte-apollo';
+	import gql from 'graphql-tag';
+	import { session } from '$app/stores';
 	export let id;
 
-	$: like = $likes.includes(id);
+	const { user } = $session;
+	// TODO: This needs to be a singleton
+	const likesQuery = query(
+		gql`
+			query myLikes($userId: uuid!) {
+				like(where: { user_id: { _eq: $userId } }) {
+					media_id
+				}
+			}
+		`,
+		{ variables: { userId: user.id } }
+	);
+
+	$: likes = !($likesQuery.loading || $likesQuery.error)
+		? $likesQuery.data.like.map(({ media_id }) => media_id)
+		: [];
+	$: like = likes.includes(id);
+
+	export const addLike = mutation(gql`
+		mutation addLike($id: uuid!) {
+			insert_like(objects: { media_id: $id }) {
+				affected_rows
+			}
+		}
+	`);
+
+	export const removeLike = mutation(gql`
+		mutation removeLike($id: uuid!) {
+			delete_like(where: { media_id: { _eq: $id } }) {
+				affected_rows
+			}
+		}
+	`);
 
 	const toggle = () => {
 		if (like) {
-			$likes = $likes.filter((_id) => _id !== id);
-			removeLike(id);
+			removeLike({ variables: { id } });
 		} else {
-			$likes = [...$likes, id];
-			addLike(id);
+			addLike({ variables: { id } });
 		}
 	};
 </script>

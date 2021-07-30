@@ -44,7 +44,11 @@ export class API {
 			const user = await api.me();
 
 			// Check the roles on the discord guild
-			await fetch(`${process.env['GATEKEEPER_URL']}/check/${user.id}`);
+			try {
+				await fetch(`${process.env['GATEKEEPER_URL']}/check/${user.id}`);
+			} catch (e) {
+				console.log('Error checking user on gatekeeper:', e);
+			}
 
 			return {
 				access_token,

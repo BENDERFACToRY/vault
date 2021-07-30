@@ -11,7 +11,14 @@ const config = {
 		appDir: 'app',
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#svelte',
-		adapter: adapter()
+		adapter: adapter(),
+		vite: {
+			resolve: {
+				alias: {
+					'svelte-apollo': '/node_modules/svelte-apollo/dist/svelte-apollo.es.js'
+				}
+			}
+		}
 	}
 };
 

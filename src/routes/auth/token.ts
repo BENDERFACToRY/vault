@@ -1,6 +1,6 @@
 import { get as getStore } from 'svelte/store';
 import { API } from '$lib/discord';
-import { getClient, gql } from '$lib/graphql';
+import { createClient, gql } from '$lib/graphql';
 import { setCookie, getCookies, datetimeAfter } from '$lib/cookies';
 import { serverToken, createToken, verifyToken } from '$lib/jwt';
 
@@ -14,7 +14,7 @@ type User = {
 	name: string;
 };
 
-const { client, token } = getClient();
+const { client, token } = createClient();
 
 async function discordLogin({ query }): Promise<User> {
 	let user;
@@ -32,11 +32,13 @@ async function discordLogin({ query }): Promise<User> {
 	}
 
 	// Check if the user exists
-	console.log('Searching user:', discordUser.id, getStore(token));
+	console.log('Searching user:', discordUser);
 	const {
-		user: [existingUser]
-	} = await client.request(
-		gql`
+		data: {
+			user: [existingUser]
+		}
+	} = await client.query({
+		query: gql`
 			query getUserByDiscordId($discordId: String!) {
 				user(where: { discord_id: { _eq: $discordId } }) {
 					id
@@ -44,18 +46,20 @@ async function discordLogin({ query }): Promise<User> {
 				}
 			}
 		`,
-		{ discordId: discordUser.id }
-	);
+		variables: { discordId: discordUser.id }
+	});
 
 	if (!existingUser) {
 		console.log('creating user:', discordUser);
 		// Create the user
 		const {
-			user: {
-				returning: [createdUser]
+			data: {
+				user: {
+					returning: [createdUser]
+				}
 			}
-		} = await client.request(
-			gql`
+		} = await client.mutate({
+			mutation: gql`
 				mutation createUser($name: String!, $discordUser: discord_insert_input!) {
 					user: insert_user(objects: { name: $name, discord: { data: $discordUser } }) {
 						returning {
@@ -65,7 +69,7 @@ async function discordLogin({ query }): Promise<User> {
 					}
 				}
 			`,
-			{
+			variables: {
 				name: discordUser.username,
 				discordUser: Object.fromEntries(
 					Object.entries(discordUser).filter(([key]) =>
@@ -73,34 +77,34 @@ async function discordLogin({ query }): Promise<User> {
 					)
 				)
 			}
-		);
+		});
 		user = createdUser;
 	} else {
-		console.log('found user:', discordUser.name);
+		console.log('found user:', existingUser.name);
 		user = existingUser;
 		// Nuke existing tokens
-		client.request(
-			gql`
+		client.mutate({
+			mutation: gql`
 				mutation removeTokens($id: uuid!) {
 					delete_oauth_token(where: { user_id: { _eq: $id } }) {
 						affected_rows
 					}
 				}
 			`,
-			{ id: user.id }
-		);
+			variables: { id: user.id }
+		});
 	}
 
 	// Update the user token
-	await client.request(
-		gql`
+	await client.mutate({
+		mutation: gql`
 			mutation createToken($token: oauth_token_insert_input!) {
 				insert_oauth_token_one(object: $token) {
 					user_id
 				}
 			}
 		`,
-		{
+		variables: {
 			token: {
 				user_id: user.id,
 				access_token,
@@ -109,7 +113,7 @@ async function discordLogin({ query }): Promise<User> {
 				expires: datetimeAfter(parseInt(expires_in))
 			}
 		}
-	);
+	});
 
 	return user;
 }

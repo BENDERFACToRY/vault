@@ -1,8 +1,8 @@
-import { getClient, gql } from '$lib/graphql';
+import { createClient, gql } from '$lib/graphql';
 import { setCookie, getCookies } from '$lib/cookies';
 import { verifyToken, serverToken } from '$lib/jwt';
 
-const { client, token } = getClient();
+const { client, token } = createClient();
 
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
@@ -17,16 +17,16 @@ export const get = async function get({ headers }) {
 			const user = await verifyToken(cookieToken);
 
 			// Remove oauth token
-			client.request(
-				gql`
+			client.query({
+				query: gql`
 					mutation removeTokens($id: uuid!) {
 						delete_oauth_token(where: { user_id: { _eq: $id } }) {
 							affected_rows
 						}
 					}
 				`,
-				{ id: user.id }
-			);
+				variables: { id: user.id }
+			});
 		}
 	} catch (e) {
 		console.log('Error logging out:', e);

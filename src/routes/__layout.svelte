@@ -1,10 +1,10 @@
 <script context="module">
-	import { token } from '$lib/graphql';
-
 	/**
 	 * @type {import('@sveltejs/kit').Load}
 	 */
 	export async function load({ page, session }) {
+		const { token, client } = createClient();
+
 		if (session.token) {
 			token.set(session.token);
 		} else if (page.path.startsWith('/u')) {
@@ -17,16 +17,34 @@
 			token.set(null);
 		}
 
-		return {};
+		return {
+			context: {
+				token,
+				client
+			},
+			props: {
+				client,
+				token
+			}
+		};
 	}
 </script>
 
 <script lang="ts">
+	import { setContext } from 'svelte';
 	import { session } from '$app/stores';
+	import { setClient } from 'svelte-apollo';
 
 	import Player from '$lib/Player.svelte';
+	import { createClient } from '$lib/graphql';
 
 	import '../app.css';
+
+	export let client;
+	export let token;
+
+	setClient(client);
+	setContext('token', token);
 </script>
 
 <svelte:head>
@@ -95,11 +113,5 @@
 		margin: 0;
 		font-size: 4rem;
 		margin-left: 1rem;
-	}
-
-	pre {
-		display: block;
-		overflow: auto;
-		font-size: 5px;
 	}
 </style>

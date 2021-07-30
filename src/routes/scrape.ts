@@ -1,9 +1,11 @@
 // Scrapes IPFS for all media
-import { getClient, gql } from '$lib/graphql';
+
+import gql from 'graphql-tag';
+import { createClient } from '$lib/graphql';
 import { serverToken } from '$lib/jwt';
 
 const cache = new Map();
-const { client, token } = getClient();
+const { client, token } = createClient();
 const wait = (time) => new Promise((resolve) => setTimeout(resolve, time));
 const fetchIPFS = async (url, { retries = 3, retryTime = 1000, ...opts } = {}) => {
 	if (cache.has(url)) {
@@ -51,8 +53,8 @@ export async function get() {
 	);
 	token.set(serverToken('scrape-ipfs'));
 
-	const body = await client.request(
-		gql`
+	const body = await client.query({
+		query: gql`
 			mutation updateMedia($tracks: [media_insert_input!]!) {
 				insert_media(
 					objects: $tracks
@@ -74,10 +76,10 @@ export async function get() {
 				}
 			}
 		`,
-		{
+		variables: {
 			tracks: tracks.map(({ tags, recorded_date, ...rest }) => rest)
 		}
-	);
+	});
 
 	return {
 		body

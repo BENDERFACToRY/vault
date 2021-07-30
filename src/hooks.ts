@@ -1,4 +1,5 @@
-import { getClient, gql } from '$lib/graphql';
+import gql from 'graphql-tag';
+import { createClient } from '$lib/graphql';
 import { verifyToken, createToken } from '$lib/jwt';
 import { getCookies, setCookie, datetimeAfter } from '$lib/cookies';
 
@@ -52,11 +53,11 @@ export async function getSession(request) {
 		try {
 			const user = await verifyToken(headerToken);
 
-			const { token, client } = getClient();
+			const { token, client } = createClient();
 			token.set(headerToken);
 
-			const { userData } = await client.request(
-				gql`
+			const { userData } = await client.query({
+				query: gql`
 					query getUserToken($id: uuid!) {
 						userData: user_by_pk(id: $id) {
 							token {
@@ -68,8 +69,8 @@ export async function getSession(request) {
 						}
 					}
 				`,
-				{ id: user.id }
-			);
+				variables: { id: user.id }
+			});
 			return {
 				user,
 				userData,
