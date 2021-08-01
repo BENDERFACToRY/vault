@@ -52,9 +52,8 @@ export async function get() {
 		}))
 	);
 	token.set(serverToken('scrape-ipfs'));
-
-	const body = await client.query({
-		query: gql`
+	const body = await client.mutate({
+		mutation: gql`
 			mutation updateMedia($tracks: [media_insert_input!]!) {
 				insert_media(
 					objects: $tracks
@@ -80,7 +79,6 @@ export async function get() {
 			tracks: tracks.map(({ tags, recorded_date, ...rest }) => rest)
 		}
 	});
-
 	return {
 		body
 	};
