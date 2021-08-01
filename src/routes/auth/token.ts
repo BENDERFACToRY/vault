@@ -1,6 +1,6 @@
-import { get as getStore } from 'svelte/store';
+import gql from 'graphql-tag';
 import { API } from '$lib/discord';
-import { createClient, gql } from '$lib/graphql';
+import { createClient } from '$lib/graphql';
 import { setCookie, getCookies, datetimeAfter } from '$lib/cookies';
 import { serverToken, createToken, verifyToken } from '$lib/jwt';
 

@@ -1,4 +1,5 @@
-import { createClient, gql } from '$lib/graphql';
+import gql from 'graphql-tag';
+import { createClient } from '$lib/graphql';
 import { setCookie, getCookies } from '$lib/cookies';
 import { verifyToken, serverToken } from '$lib/jwt';
 

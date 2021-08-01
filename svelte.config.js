@@ -17,6 +17,17 @@ const config = {
 				alias: {
 					'svelte-apollo': '/node_modules/svelte-apollo/dist/svelte-apollo.es.js'
 				}
+			},
+			optimizeDeps: {
+				include: [
+					'@apollo/client/core',
+					'@apollo/client/cache',
+					'@apollo/client/link/ws',
+					'@apollo/client/link/context',
+					'@apollo/client/link/error',
+					'@apollo/client/utilities'
+				],
+				exclude: ['@apollo/client']
 			}
 		}
 	}

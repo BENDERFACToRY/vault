@@ -1,16 +1,12 @@
 import { get, writable } from 'svelte/store';
-import { browser } from '$app/env';
 // import fetch from 'cross-fetch'
 import { GRAPHQL_ENDPOINT, GRAPHQL_WS_ENDPOINT } from '$lib/config';
 
-import {
-	gql,
-	ApolloClient,
-	ApolloLink,
-	InMemoryCache,
-	HttpLink,
-	concat
-} from '@apollo/client/core/core.cjs.js';
+import pkg from '@apollo/client/core/core.cjs.js';
+const { ApolloLink, HttpLink, InMemoryCache, ApolloClient, concat } = pkg;
+
+export const client = writable();
+export const token = writable();
 
 export function createClient(authToken = '') {
 	const token = writable<string>(authToken);
@@ -38,7 +34,16 @@ export function createClient(authToken = '') {
 	});
 	return { client, token };
 }
-export { gql };
+
+export function setupClient() {
+	const { client: _client, token: _token } = createClient();
+	token.set(_token);
+	client.set(_client);
+}
+
+export function query(query, options) {
+	const c = get(client);
+}
 
 // export const getSubscriptionClient = (token) => {
 // 	const client =
