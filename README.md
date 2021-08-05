@@ -9,5 +9,5 @@
 
 - Install [nodejs](https://nodejs.org/en/download/)
 - Run `npm install`
-- Run `npm dev`
+- Run `npm run dev`
 - Open http://localhost:3000 in the browser
