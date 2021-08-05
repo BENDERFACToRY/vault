@@ -18,8 +18,8 @@ export const get = async function get({ headers }) {
 			const user = await verifyToken(cookieToken);
 
 			// Remove oauth token
-			client.query({
-				query: gql`
+			client.mutate({
+				mutation: gql`
 					mutation removeTokens($id: uuid!) {
 						delete_oauth_token(where: { user_id: { _eq: $id } }) {
 							affected_rows
