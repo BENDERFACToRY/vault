@@ -3,6 +3,8 @@ import { API } from '$lib/discord';
 import { createClient } from '$lib/graphql';
 import { setCookie, getCookies, datetimeAfter } from '$lib/cookies';
 import { serverToken, createToken, verifyToken } from '$lib/jwt';
+import type { EndpointOutput } from '@sveltejs/kit';
+import type { ServerRequest } from '@sveltejs/kit/types/hooks';
 
 /* Token endpoint is called for fetching JWTokens:
  - in a discord flow,
@@ -121,7 +123,7 @@ async function discordLogin({ query }): Promise<User> {
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
-export async function get({ query, headers }) {
+export async function get({ query, headers }: ServerRequest): Promise<EndpointOutput> {
 	// Checks the oauth redirect code, creates or fetches the user, and stores the oauth token info.
 	const { state } = getCookies(headers.cookie);
 	token.set(serverToken('oauth-token'));
@@ -198,7 +200,7 @@ export async function get({ query, headers }) {
 			'Set-Cookie': [
 				setCookie('token', JWToken, { expires: datetimeAfter(60 * 60 * 25) }),
 				setCookie('state', '', { expires: new Date(1970) })
-			]
+			] as any
 		},
 		body: {
 			user: JWTUser,

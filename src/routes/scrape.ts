@@ -3,6 +3,7 @@
 import gql from 'graphql-tag';
 import { createClient } from '$lib/graphql';
 import { serverToken } from '$lib/jwt';
+import type { EndpointOutput } from '@sveltejs/kit';
 
 const cache = new Map();
 const { client, token } = createClient();
@@ -31,7 +32,7 @@ const fetchIPFS = async (url, { retries = 3, retryTime = 1000, ...opts } = {}) =
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
-export async function get() {
+export async function get(): Promise<EndpointOutput> {
 	const seasons = await fetchIPFS(`https://ipfs.benderfactory.com/metadata.json`);
 
 	const data = await Promise.all(
@@ -80,6 +81,6 @@ export async function get() {
 		}
 	});
 	return {
-		body
+		body: body.data
 	};
 }

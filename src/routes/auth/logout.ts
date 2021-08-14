@@ -2,13 +2,15 @@ import gql from 'graphql-tag';
 import { createClient } from '$lib/graphql';
 import { setCookie, getCookies } from '$lib/cookies';
 import { verifyToken, serverToken } from '$lib/jwt';
+import type { EndpointOutput } from '@sveltejs/kit';
+import type { ServerRequest } from '@sveltejs/kit/types/hooks';
 
 const { client, token } = createClient();
 
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
-export const get = async function get({ headers }) {
+export const get = async function get({ headers }: ServerRequest): Promise<EndpointOutput> {
 	const { token: cookieToken } = getCookies(headers.cookie);
 	token.set(serverToken('auth-logout'));
 
