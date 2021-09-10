@@ -1,4 +1,4 @@
-<script context="module" type="ts">
+<script context="module" lang="ts">
 	import { writable } from 'svelte/store';
 
 	export const currentTrack = writable();
