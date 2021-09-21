@@ -3,40 +3,49 @@
 	import gql from 'graphql-tag';
 	import { session } from '$app/stores';
 	export let id;
+	export let refetch;
 
 	const { user } = $session;
 	// TODO: This needs to be a singleton
-	const likesQuery = query(
-		gql`
-			query myLikes($userId: uuid!) {
-				like(where: { user_id: { _eq: $userId } }) {
-					media_id
-				}
+	const GET_LIKES = gql`
+		query myLikes($userId: uuid!) {
+			like(where: { user_id: { _eq: $userId } }) {
+				media_id
 			}
-		`,
-		{ variables: { userId: user.id } }
-	);
+		}
+	`;
+	const likesQuery = query(GET_LIKES, { variables: { userId: user.id } });
 
 	$: likes = !($likesQuery.loading || $likesQuery.error)
 		? $likesQuery.data.like.map(({ media_id }) => media_id)
 		: [];
 	$: like = likes.includes(id);
 
-	export const addLike = mutation(gql`
-		mutation addLike($id: uuid!) {
-			insert_like(objects: { media_id: $id }) {
-				affected_rows
+	export const addLike = mutation(
+		gql`
+			mutation addLike($id: uuid!) {
+				insert_like(objects: { media_id: $id }) {
+					affected_rows
+				}
 			}
+		`,
+		{
+			refetchQueries: [GET_LIKES]
 		}
-	`);
+	);
 
-	export const removeLike = mutation(gql`
-		mutation removeLike($id: uuid!) {
-			delete_like(where: { media_id: { _eq: $id } }) {
-				affected_rows
+	export const removeLike = mutation(
+		gql`
+			mutation removeLike($id: uuid!) {
+				delete_like(where: { media_id: { _eq: $id } }) {
+					affected_rows
+				}
 			}
+		`,
+		{
+			refetchQueries: [GET_LIKES]
 		}
-	`);
+	);
 
 	const toggle = () => {
 		if (like) {
@@ -44,6 +53,7 @@
 		} else {
 			addLike({ variables: { id } });
 		}
+		refetch();
 	};
 </script>
 

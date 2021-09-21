@@ -18,6 +18,7 @@
 
 	export let columns: Column[];
 	export let data: string[][];
+	export let key: string;
 
 	// Assign classes to rows based on conditions
 	export let rowClass = null;
@@ -26,14 +27,14 @@
 <table>
 	<thead>
 		<tr>
-			{#each columns as column}
+			{#each columns as column (column)}
 				<th>{column.label ?? column}</th>
 			{/each}
 		</tr>
 	</thead>
 
 	<tbody>
-		{#each data as row}
+		{#each data as row (row[key])}
 			<tr
 				on:click={() => dispatch('click', row)}
 				class={rowClass &&
@@ -42,7 +43,7 @@
 						.map(([cls]) => cls)
 						.join(' ')}
 			>
-				{#each columns as column}
+				{#each columns as column (column)}
 					<td style={column.style}>
 						{#if column.getter}
 							{column.getter(row)}

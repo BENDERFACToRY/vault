@@ -2,9 +2,11 @@
 	export let tags = [];
 </script>
 
-{#each tags as tag}
-	<span class="tag">{tag}</span>
-{/each}
+{#if tags}
+	{#each tags as tag}
+		<span class="tag">{tag}</span>
+	{/each}
+{/if}
 
 <style>
 	.tag {

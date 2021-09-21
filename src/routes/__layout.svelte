@@ -6,6 +6,7 @@
 		const { token, client } = createClient();
 
 		if (session.token) {
+			console.log('Setting token', session.token);
 			token.set(session.token);
 		} else if (page.path.startsWith('/u')) {
 			return {

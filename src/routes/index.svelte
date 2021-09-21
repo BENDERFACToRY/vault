@@ -55,6 +55,10 @@
 			}
 		}
 	`);
+
+	$: {
+		console.log($media?.data?.media);
+	}
 </script>
 
 {#if $session.user}
@@ -64,6 +68,7 @@
 		<p>Error: {$media.error}</p>
 	{:else}
 		<Table
+			key="id"
 			on:click={({ detail: { data_folder } }) => goto(`m/${data_folder}`)}
 			columns={[
 				{ label: '', component: Play, props: (track) => ({ track }) },
@@ -88,7 +93,7 @@
 						}
 					}) => count
 				},
-				{ label: '', component: Like, props: ({ id }) => ({ id }) }
+				{ label: '', component: Like, props: ({ id }) => ({ id, refetch: () => media.refetch() }) }
 			]}
 			rowClass={(row) => ({
 				active: row === $currentTrack
