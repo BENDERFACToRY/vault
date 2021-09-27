@@ -31,6 +31,12 @@ export function createClient(authToken = '') {
 		link: concat(authMiddleware, httpLink),
 		cache
 	});
+	token.subscribe((value) => {
+		if (value) {
+			console.log('Token changed', value);
+			client.resetStore();
+		}
+	});
 	return { client, token };
 }
 

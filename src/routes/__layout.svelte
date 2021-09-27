@@ -19,7 +19,7 @@
 		}
 
 		return {
-			context: {
+			stuff: {
 				token,
 				client
 			},

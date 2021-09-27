@@ -14,6 +14,7 @@
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.46",
     "@sveltejs/kit": "next",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.24",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
     "eslint": "^7.22.0",
@@ -30,7 +31,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@apollo/client": "^3.4.10",
+    "@apollo/client": "^3.5.0-beta.17",
+    "@dxlb/svelte-apollo": "^0.4.4",
     "@fontsource/material-icons-two-tone": "^4.4.5",
     "@fontsource/maven-pro": "^4.4.5",
     "cross-fetch": "^3.1.4",
@@ -43,7 +45,7 @@
     "husky": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
     "subscriptions-transport-ws": "^0.9.19",
-    "svelte-apollo": "npm:@dxlb/svelte-apollo@^0.4.3"
+    "svelte-apollo": "npm:@dxlb/svelte-apollo@^0.4.4"
   },
   "lint-staged": {
     "*.{js,ts,svelte}": "eslint --cache --fix",
