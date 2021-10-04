@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "svelte-kit dev",
-    "build": "svelte-kit build",
+    "build": "svelte-kit build --verbose",
     "preview": "svelte-kit preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
@@ -12,9 +12,8 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@sveltejs/adapter-node": "^1.0.0-next.46",
-    "@sveltejs/kit": "next",
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.24",
+    "@sveltejs/adapter-node": "^1.0.0-next.49",
+    "@sveltejs/kit": "1.0.0-next.176",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
     "eslint": "^7.22.0",
@@ -27,11 +26,11 @@
     "svelte-check": "^2.0.0",
     "svelte-preprocess": "^4.0.0",
     "tslib": "^2.0.0",
-    "typescript": "^4.0.0"
+    "typescript": "^4.4.0"
   },
   "type": "module",
   "dependencies": {
-    "@apollo/client": "^3.5.0-beta.17",
+    "@apollo/client": "^3.5.0-rc.0",
     "@dxlb/svelte-apollo": "^0.4.4",
     "@fontsource/material-icons-two-tone": "^4.4.5",
     "@fontsource/maven-pro": "^4.4.5",

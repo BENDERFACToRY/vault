@@ -2,7 +2,13 @@ import { get, writable } from 'svelte/store';
 // import fetch from 'cross-fetch'
 import { GRAPHQL_ENDPOINT, GRAPHQL_WS_ENDPOINT } from '$lib/config';
 
-import { ApolloLink, HttpLink, InMemoryCache, ApolloClient, concat } from '@apollo/client/core';
+// import { ApolloClient, HttpLink } from '@apollo/client/core/core.cjs';
+// import { InMemoryCache } from '@apollo/client/cache/cache.cjs';
+// import { setContext } from '@apollo/client/link/context/context.cjs.js';
+
+// import { ApolloLink, HttpLink, InMemoryCache, ApolloClient, concat } from '@apollo/client/core';
+// import pkg from '@apollo/client/core/core.cjs';
+// const { ApolloLink, HttpLink, InMemoryCache, ApolloClient, concat } = pkg;
 
 export const client = writable();
 export const token = writable();
