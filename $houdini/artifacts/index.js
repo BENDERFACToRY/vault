@@ -1,2 +1,3 @@
-export { default as MyLikes } from './MyLikes';
-export { default as AllTracks } from './AllTracks';
+
+ export { default as MyLikes} from './MyLikes'
+ export { default as AllTracks} from './AllTracks'

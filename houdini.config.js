@@ -26,13 +26,11 @@ const config = {
 			}
 		},
 		jsonb: {
-			type: 'string',
+			type: 'object',
 			unmarshal(val) {
-				console.log('jsonb:unmarshal', val);
 				return val;
 			},
 			marshal(val) {
-				console.log('jsonb:marshal', val);
 				return val;
 			}
 		}

@@ -55,10 +55,6 @@
 			}
 		}
 	`);
-
-	$: {
-		console.log($data.media);
-	}
 </script>
 
 {#if $session.user}

@@ -1,7 +1,6 @@
 import { Environment } from '$houdini';
 
 export default new Environment(async function ({ text, variables = {} }, session) {
-	console.log('Got session', session);
 	// send the request to the api
 	const result = await this.fetch('http://graphql.benders/v1/graphql', {
 		method: 'POST',

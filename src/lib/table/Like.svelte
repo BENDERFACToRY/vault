@@ -1,17 +1,5 @@
-<script context="module" lang="ts">
-	// This is the function for the AllItems query.
-	// Query variable functions must be named <QueryName>Variables.
-	export function myLikesVariables({ session }): MyLikes$input {
-		// make sure we recognize the value
-		return {
-			userId: session.user.id
-		};
-	}
-</script>
-
 <script lang="ts">
 	// import { query, mutation } from 'svelte-apollo';
-	import { session } from '$app/stores';
 	import { query, graphql, MyLikes, MyLikes$input } from '$houdini';
 
 	export let id;
@@ -71,6 +59,18 @@
 	};
 </script>
 
+<script context="module" lang="ts">
+	import { get } from 'svelte/store'
+	import { session } from '$app/stores';
+	// This is the function for the AllItems query.
+	// Query variable functions must be named <QueryName>Variables.
+	export function MyLikesVariables(): MyLikes$input {
+		// make sure we recognize the value
+		return {
+			userId: get(session).user.id
+		};
+	}
+</script>
 <button class:like class="icon" on:click|stopPropagation={toggle}>
 	{like ? 'favorite' : 'favorite_border'}
 </button>
