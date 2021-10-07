@@ -1,7 +1,7 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
-	import { query } from 'svelte-apollo';
-	import gql from 'graphql-tag';
+
+	import { query, graphql, AllTracks } from '$houdini';
 
 	import { page, session } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -37,8 +37,8 @@
 		}
 	});
 
-	const media = query(gql`
-		query allTracks {
+	const { data, loading, error } = query<AllTracks>(graphql`
+		query AllTracks {
 			media(order_by: [{ likes_aggregate: { count: desc } }, { title: asc }]) {
 				title
 				bpm
@@ -57,15 +57,15 @@
 	`);
 
 	$: {
-		console.log($media?.data?.media);
+		console.log($data.media);
 	}
 </script>
 
 {#if $session.user}
-	{#if $media.loading}
+	{#if $loading}
 		<p>Loading</p>
-	{:else if $media.error}
-		<p>Error: {$media.error}</p>
+	{:else if $error}
+		<p>Error: {$error}</p>
 	{:else}
 		<Table
 			key="id"
@@ -98,7 +98,7 @@
 			rowClass={(row) => ({
 				active: row === $currentTrack
 			})}
-			data={$media.data.media}
+			data={$data.media}
 		/>
 	{/if}
 {:else}

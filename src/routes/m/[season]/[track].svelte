@@ -1,6 +1,6 @@
 <script lang="ts">
 	import gql from 'graphql-tag';
-	import { query } from 'svelte-apollo';
+	// import { query } from 'svelte-apollo';
 
 	import { page } from '$app/stores';
 

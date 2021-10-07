@@ -1,51 +1,65 @@
+<script context="module" lang="ts">
+	// This is the function for the AllItems query.
+	// Query variable functions must be named <QueryName>Variables.
+	export function myLikesVariables({ session }): MyLikes$input {
+		// make sure we recognize the value
+		return {
+			userId: session.user.id
+		};
+	}
+</script>
+
 <script lang="ts">
-	import { query, mutation } from 'svelte-apollo';
-	import gql from 'graphql-tag';
+	// import { query, mutation } from 'svelte-apollo';
 	import { session } from '$app/stores';
+	import { query, graphql, MyLikes, MyLikes$input } from '$houdini';
+
 	export let id;
 	export let refetch;
 
-	const { user } = $session;
-	// TODO: This needs to be a singleton
-	const GET_LIKES = gql`
-		query myLikes($userId: uuid!) {
+	const { data, loading, error } = query<MyLikes>(graphql`
+		query MyLikes($userId: uuid!) {
 			like(where: { user_id: { _eq: $userId } }) {
 				media_id
 			}
 		}
-	`;
-	const likesQuery = query(GET_LIKES, { variables: { userId: user.id } });
+	`);
+	//  { variables: { userId: user.id } });
 
-	$: likes = !($likesQuery.loading || $likesQuery.error)
-		? $likesQuery.data.like.map(({ media_id }) => media_id)
-		: [];
+	$: likes = !($loading || $error) ? $data.like.map(({ media_id }) => media_id) : [];
 	$: like = likes.includes(id);
 
-	export const addLike = mutation(
-		gql`
-			mutation addLike($id: uuid!) {
-				insert_like(objects: { media_id: $id }) {
-					affected_rows
-				}
-			}
-		`,
-		{
-			refetchQueries: [GET_LIKES]
-		}
-	);
+	export const addLike = () => {
+		console.log('Adding like');
+	};
+	export const removeLike = () => {
+		console.log('removing like');
+	};
+	// export const addLike = mutation(
+	// 	gql`
+	// 		mutation addLike($id: uuid!) {
+	// 			insert_like(objects: { media_id: $id }) {
+	// 				affected_rows
+	// 			}
+	// 		}
+	// 	`,
+	// 	{
+	// 		refetchQueries: [MY_LIKES]
+	// 	}
+	// );
 
-	export const removeLike = mutation(
-		gql`
-			mutation removeLike($id: uuid!) {
-				delete_like(where: { media_id: { _eq: $id } }) {
-					affected_rows
-				}
-			}
-		`,
-		{
-			refetchQueries: [GET_LIKES]
-		}
-	);
+	// export const removeLike = mutation(
+	// 	gql`
+	// 		mutation removeLike($id: uuid!) {
+	// 			delete_like(where: { media_id: { _eq: $id } }) {
+	// 				affected_rows
+	// 			}
+	// 		}
+	// 	`,
+	// 	{
+	// 		refetchQueries: [MY_LIKES]
+	// 	}
+	// );
 
 	const toggle = () => {
 		if (like) {

@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
 import { API } from '$lib/discord';
-import { createClient } from '$lib/graphql';
 import { setCookie, getCookies, datetimeAfter } from '$lib/cookies';
 import { serverToken, createToken, verifyToken } from '$lib/jwt';
+
+import { query as gqlQuery } from '$lib/graphql';
 
 /* Token endpoint is called for fetching JWTokens:
  - in a discord flow,
@@ -13,8 +14,6 @@ type User = {
 	id: string;
 	name: string;
 };
-
-const { client, token } = createClient();
 
 async function discordLogin({ query }): Promise<User> {
 	let user;
@@ -31,14 +30,16 @@ async function discordLogin({ query }): Promise<User> {
 		return;
 	}
 
+	const token = serverToken('oauth-token');
 	// Check if the user exists
 	console.log('Searching user:', discordUser);
+
 	const {
 		data: {
 			user: [existingUser]
 		}
-	} = await client.query({
-		query: gql`
+	} = await gqlQuery({
+		query: `
 			query getUserByDiscordId($discordId: String!) {
 				user(where: { discord_id: { _eq: $discordId } }) {
 					id
@@ -46,7 +47,10 @@ async function discordLogin({ query }): Promise<User> {
 				}
 			}
 		`,
-		variables: { discordId: discordUser.id }
+		variables: {
+			discordId: discordUser.id
+		},
+		token
 	});
 
 	if (!existingUser) {
@@ -58,8 +62,8 @@ async function discordLogin({ query }): Promise<User> {
 					returning: [createdUser]
 				}
 			}
-		} = await client.mutate({
-			mutation: gql`
+		} = await gqlQuery({
+			query: `
 				mutation createUser($name: String!, $discordUser: discord_insert_input!) {
 					user: insert_user(objects: { name: $name, discord: { data: $discordUser } }) {
 						returning {
@@ -76,28 +80,30 @@ async function discordLogin({ query }): Promise<User> {
 						['id', 'username', 'discriminator', 'avatar', 'bot', 'system', 'email'].includes(key)
 					)
 				)
-			}
+			},
+			token
 		});
 		user = createdUser;
 	} else {
 		console.log('found user:', existingUser.name);
 		user = existingUser;
 		// Nuke existing tokens
-		client.mutate({
-			mutation: gql`
+		gqlQuery({
+			query: `
 				mutation removeTokens($id: uuid!) {
 					delete_oauth_token(where: { user_id: { _eq: $id } }) {
 						affected_rows
 					}
 				}
 			`,
-			variables: { id: user.id }
+			variables: { id: user.id },
+			token
 		});
 	}
 
 	// Update the user token
-	await client.mutate({
-		mutation: gql`
+	await gqlQuery({
+		query: gql`
 			mutation createToken($token: oauth_token_insert_input!) {
 				insert_oauth_token_one(object: $token) {
 					user_id
@@ -112,7 +118,8 @@ async function discordLogin({ query }): Promise<User> {
 				scope: scope.split(' '),
 				expires: datetimeAfter(parseInt(expires_in))
 			}
-		}
+		},
+		token
 	});
 
 	return user;
@@ -124,12 +131,13 @@ async function discordLogin({ query }): Promise<User> {
 export async function get({ query, headers }) {
 	// Checks the oauth redirect code, creates or fetches the user, and stores the oauth token info.
 	const { state } = getCookies(headers.cookie);
-	token.set(serverToken('oauth-token'));
 
 	let user;
 	if (query.has('state') && query.has('code') && state === query.get('state')) {
 		user = await discordLogin({ query });
 	}
+
+	console.log('gottne user?', user);
 
 	if (query.has('application') && query.has('secret')) {
 		// Tokens for the applications
