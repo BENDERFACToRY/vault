@@ -1,57 +1,61 @@
-<script lang="ts">
-	import { query, mutation } from 'svelte-apollo';
-	import gql from 'graphql-tag';
+<script context="module" lang="ts">
+	import { get } from 'svelte/store';
 	import { session } from '$app/stores';
-	export let id;
-	export let refetch;
+	// This is the function for the AllItems query.
+	// Query variable functions must be named <QueryName>Variables.
+	export function MyLikesVariables(): MyLikes$input {
+		// make sure we recognize the value
+		return {
+			userId: get(session).user.id
+		};
+	}
+</script>
 
-	const { user } = $session;
-	// TODO: This needs to be a singleton
-	const GET_LIKES = gql`
-		query myLikes($userId: uuid!) {
+<script lang="ts">
+	import { query, mutation, graphql, MyLikes } from '$houdini';
+
+	export let id;
+
+	const { data, loading, error } = query<MyLikes>(graphql`
+		query MyLikes($userId: uuid!) {
 			like(where: { user_id: { _eq: $userId } }) {
 				media_id
 			}
 		}
-	`;
-	const likesQuery = query(GET_LIKES, { variables: { userId: user.id } });
+	`);
 
-	$: likes = !($likesQuery.loading || $likesQuery.error)
-		? $likesQuery.data.like.map(({ media_id }) => media_id)
-		: [];
+	$: likes = !($loading || $error) ? $data.like.map(({ media_id }) => media_id) : [];
 	$: like = likes.includes(id);
 
-	export const addLike = mutation(
-		gql`
-			mutation addLike($id: uuid!) {
+	const addLike = mutation(
+		graphql`
+			mutation AddLike($id: uuid!) {
 				insert_like(objects: { media_id: $id }) {
-					affected_rows
+					returning {
+						media_id
+					}
 				}
 			}
-		`,
-		{
-			refetchQueries: [GET_LIKES]
-		}
+		`
 	);
 
-	export const removeLike = mutation(
-		gql`
-			mutation removeLike($id: uuid!) {
+	const removeLike = mutation(
+		graphql`
+			mutation RemoveLike($id: uuid!) {
 				delete_like(where: { media_id: { _eq: $id } }) {
-					affected_rows
+					returning {
+						media_id
+					}
 				}
 			}
-		`,
-		{
-			refetchQueries: [GET_LIKES]
-		}
+		`
 	);
 
-	const toggle = () => {
+	const toggle = async () => {
 		if (like) {
-			removeLike({ variables: { id } });
+			await removeLike({ id });
 		} else {
-			addLike({ variables: { id } });
+			await addLike({ id });
 		}
 		refetch();
 	};
