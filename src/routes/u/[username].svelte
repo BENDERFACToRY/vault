@@ -36,6 +36,7 @@
 					discriminator
 					email
 					system
+					roles
 				}
 			}
 		}
