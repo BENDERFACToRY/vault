@@ -1,14 +1,29 @@
+<script lang="ts" context="module">
+	export function GetTrackVariables({ page }) {
+		const { season, track } = page.params;
+
+		return {
+			data_folder: `${season}/${track}`
+		};
+	}
+</script>
+
 <script lang="ts">
-	import gql from 'graphql-tag';
-	// import { query } from 'svelte-apollo';
+	import { graphql, query, GetTrack } from '$houdini';
 
 	import { page } from '$app/stores';
 
 	import { Table, Tags, Files } from '$lib/table';
 	import { formatDuration } from '$lib/util';
 
-	const GET_TRACKS = gql`
-		query getTrack($data_folder: String!) {
+	let recording, path;
+
+	// $: if (tracksQuery && season && track) {
+	// 	tracksQuery.refetch({ data_folder: `${season}/${track}` });
+	// }
+
+	const { data, loading, error } = query<GetTrack>(graphql`
+		query GetTrack($data_folder: String!) {
 			media(where: { data_folder: { _eq: $data_folder } }) {
 				title
 				bpm
@@ -21,26 +36,15 @@
 				torrent
 			}
 		}
-	`;
-	let recording, path;
-
-	$: ({ season, track } = $page.params);
-	$: if (tracksQuery && season && track) {
-		tracksQuery.refetch({ data_folder: `${season}/${track}` });
-	}
-
-	const tracksQuery = query(GET_TRACKS, {
-		variables: { data_folder: `${season}/${track}` }
-	});
-	$: if (!($tracksQuery.loading || $tracksQuery.error)) {
-		const [r] = $tracksQuery.data?.media;
+	`);
+	$: if (!($loading || $error)) {
+		const [r] = $data?.media;
 		recording = r;
-		console.log(recording);
 	}
 	$: path = recording && `https://ipfs.benderfactory.com/${recording.data_folder}`;
 </script>
 
-{#if $tracksQuery.loading}
+{#if $loading}
 	<p>Loading</p>
 {:else if recording}
 	<h2>{recording.title}</h2>
@@ -71,6 +75,7 @@
 	{/if}
 
 	<Table
+		key="id"
 		columns={[
 			// { label: '', getter: () => ''},
 			{ label: 'track', getter: ({ name, id }) => `track ${id}: ${name}` },
@@ -78,11 +83,19 @@
 			{
 				label: 'files',
 				component: Files,
-				props: (track) => ({ basepath: recording.path, ...track })
+				props: (track) => ({
+					basepath: path,
+					flac: track.flac,
+					flac_bytes: track.flac_bytes,
+					vorbis: track.vorbis,
+					ogg_bytes: track.ogg_bytes,
+					mp3: track.mp3,
+					mp3_bytes: track.mp3_bytes
+				})
 			}
 		]}
 		data={[recording.stereo_mix, ...recording.tracks]}
 	/>
 
-	<h3>Terms of Service: <a href="{recording.path}/ToS.txt">must read before downloading</a></h3>
+	<h3>Terms of Service: <a href="{path}/ToS.txt">must read before downloading</a></h3>
 {/if}
