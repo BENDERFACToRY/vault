@@ -10,8 +10,8 @@ export type AllTracks$result = {
         readonly data_folder: string,
         readonly id: string,
         readonly recorded_date: string | null,
-        readonly stereo_mix: string,
-        readonly tracks: string,
+        readonly stereo_mix: object,
+        readonly tracks: object,
         readonly likes_aggregate: {
             readonly aggregate: {
                 readonly count: number

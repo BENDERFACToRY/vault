@@ -1,6 +1,6 @@
 /** @type {import('houdini').ConfigFile} */
 const config = {
-	schemaPath: '.gql',
+	schemaPath: 'schema.gql',
 	sourceGlob: 'src/**/*.svelte',
 	module: 'esm',
 	framework: 'kit',
