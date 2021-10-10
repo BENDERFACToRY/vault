@@ -1,5 +1,7 @@
+import { GRAPHQL_ENDPOINT } from '$lib/config';
+
 export const query = async ({ query, variables, token }) => {
-	const resp = await fetch(`http://graphql.benders/v1/graphql`, {
+	const resp = await fetch(GRAPHQL_ENDPOINT, {
 		method: 'POST',
 		body: JSON.stringify({
 			query,

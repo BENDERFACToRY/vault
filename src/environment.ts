@@ -1,5 +1,7 @@
 import { Environment } from '$houdini';
 
+import { GRAPHQL_ENDPOINT } from '$lib/config';
+
 export default new Environment(async function ({ text, variables = {} }, session) {
 	const headers = {};
 	if ('token' in session) {
@@ -7,7 +9,7 @@ export default new Environment(async function ({ text, variables = {} }, session
 	}
 
 	// send the request to the api
-	const result = await this.fetch('http://graphql.benders/v1/graphql', {
+	const result = await this.fetch(GRAPHQL_ENDPOINT, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
