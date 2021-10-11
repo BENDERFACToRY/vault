@@ -1,4 +1,3 @@
-import gql from 'graphql-tag';
 import { API } from '$lib/discord';
 import { setCookie, getCookies, datetimeAfter } from '$lib/cookies';
 import { serverToken, createToken, verifyToken } from '$lib/jwt';
@@ -35,9 +34,7 @@ async function discordLogin({ query }): Promise<User> {
 	console.log('Searching user:', discordUser);
 
 	const {
-		data: {
-			user: [existingUser]
-		}
+		user: [existingUser]
 	} = await gqlQuery({
 		query: `
 			query getUserByDiscordId($discordId: String!) {
@@ -57,15 +54,23 @@ async function discordLogin({ query }): Promise<User> {
 		console.log('creating user:', discordUser);
 		// Create the user
 		const {
-			data: {
-				user: {
-					returning: [createdUser]
-				}
+			user: {
+				returning: [createdUser]
 			}
 		} = await gqlQuery({
 			query: `
 				mutation createUser($name: String!, $discordUser: discord_insert_input!) {
-					user: insert_user(objects: { name: $name, discord: { data: $discordUser } }) {
+					user: insert_user(objects: {
+						name: $name,
+						discord: {
+							data: $discordUser
+							on_conflict:{
+								constraint:discord_pkey,
+								update_columns:[avatar, bot, discriminator, email, roles, system, username]
+							}
+						},
+						
+					}) {
 						returning {
 							id
 							name
@@ -103,7 +108,7 @@ async function discordLogin({ query }): Promise<User> {
 
 	// Update the user token
 	await gqlQuery({
-		query: gql`
+		query: `
 			mutation createToken($token: oauth_token_insert_input!) {
 				insert_oauth_token_one(object: $token) {
 					user_id
@@ -136,8 +141,6 @@ export async function get({ query, headers }) {
 	if (query.has('state') && query.has('code') && state === query.get('state')) {
 		user = await discordLogin({ query });
 	}
-
-	console.log('gottne user?', user);
 
 	if (query.has('application') && query.has('secret')) {
 		// Tokens for the applications

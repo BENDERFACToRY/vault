@@ -1,6 +1,4 @@
 // Scrapes IPFS for all media
-
-import gql from 'graphql-tag';
 import { query } from '$lib/graphql';
 import { serverToken } from '$lib/jwt';
 
