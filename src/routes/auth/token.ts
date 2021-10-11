@@ -40,6 +40,7 @@ async function discordLogin({ query }): Promise<User> {
 			query getUserByDiscordId($discordId: String!) {
 				user(where: { discord_id: { _eq: $discordId } }) {
 					id
+					discord_id
 					name
 				}
 			}
@@ -74,6 +75,7 @@ async function discordLogin({ query }): Promise<User> {
 						returning {
 							id
 							name
+							discord_id
 						}
 					}
 				}
@@ -201,6 +203,16 @@ export async function get({ query, headers }) {
 		expiresIn: '1 day',
 		subject: user.id.toString()
 	});
+
+	try {
+		// Try fetching the user's discord roles from the gatekeeper
+		const response = await fetch(`${process.env['GATEKEEPER_URL']}/check/${user.discord_id}`);
+		console.log(process.env['GATEKEEPER_URL'], response.status);
+		const data = await response.json();
+		console.log('Got roles:', data);
+	} catch (e) {
+		console.log("Failing to resolve the user's roles", e);
+	}
 
 	// Create a JWT for the user session (a day)
 	return {
