@@ -16,7 +16,7 @@
 
 	export let id;
 
-	const { data, loading, error } = query<MyLikes>(graphql`
+	const { data, loading, error, refetch } = query<MyLikes>(graphql`
 		query MyLikes($userId: uuid!) {
 			like(where: { user_id: { _eq: $userId } }) {
 				media_id
