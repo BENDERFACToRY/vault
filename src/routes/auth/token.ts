@@ -1,4 +1,3 @@
-import gql from 'graphql-tag';
 import { API } from '$lib/discord';
 import { setCookie, getCookies, datetimeAfter } from '$lib/cookies';
 import { serverToken, createToken, verifyToken } from '$lib/jwt';
@@ -103,7 +102,7 @@ async function discordLogin({ query }): Promise<User> {
 
 	// Update the user token
 	await gqlQuery({
-		query: gql`
+		query: `
 			mutation createToken($token: oauth_token_insert_input!) {
 				insert_oauth_token_one(object: $token) {
 					user_id

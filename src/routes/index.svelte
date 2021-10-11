@@ -1,3 +1,12 @@
+<script context="module" lang="ts">
+	import { AllTracks$input } from '$houdini';
+	export function AllTracksVariables({ session }): AllTracks$input {
+		return {
+			userId: session.user.id
+		};
+	}
+</script>
+
 <script lang="ts">
 	import { onMount } from 'svelte';
 
@@ -38,7 +47,7 @@
 	});
 
 	const { data, loading, error } = query<AllTracks>(graphql`
-		query AllTracks {
+		query AllTracks($userId: uuid!) {
 			media(order_by: [{ likes_aggregate: { count: desc } }, { title: asc }]) {
 				title
 				bpm
@@ -52,6 +61,7 @@
 						count
 					}
 				}
+				...AllLikes @with(userId: $userId)
 			}
 		}
 	`);

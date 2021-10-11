@@ -1,9 +1,9 @@
 export default {
     name: "AllTracks",
     kind: "HoudiniQuery",
-    hash: "1fe8996ee42c81a3f4cfb98d512ba42f83ffdc2938d59ab5c32207403b1d38af",
+    hash: "fbff2fbb120e209a53218d091d15a7f66386cfe036aee4a119c05d16e690cc12",
 
-    raw: `query AllTracks {
+    raw: `query AllTracks($userId: uuid!) {
   media(order_by: [{likes_aggregate: {count: desc}}, {title: asc}]) {
     title
     bpm
@@ -17,6 +17,13 @@ export default {
         count
       }
     }
+    ...AllLikes_3K7mRP
+  }
+}
+
+fragment AllLikes_3K7mRP on media {
+  likes(where: {user_id: {_eq: $userId}}) {
+    media_id
   }
 }
 `,
@@ -81,9 +88,29 @@ export default {
                             }
                         }
                     }
+                },
+
+                likes: {
+                    type: "like",
+                    keyRaw: "likes(where: {user_id: {_eq: $userId}})",
+
+                    fields: {
+                        media_id: {
+                            type: "uuid",
+                            keyRaw: "media_id"
+                        }
+                    }
                 }
             }
         }
+    },
+
+    input: {
+        fields: {
+            userId: "uuid"
+        },
+
+        types: {}
     },
 
     policy: "NetworkOnly"

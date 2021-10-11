@@ -1,31 +1,30 @@
-<script context="module" lang="ts">
-	import { get } from 'svelte/store';
-	import { session } from '$app/stores';
-	// This is the function for the AllItems query.
-	// Query variable functions must be named <QueryName>Variables.
-	export function MyLikesVariables(): MyLikes$input {
-		// make sure we recognize the value
-		return {
-			userId: get(session).user.id
-		};
-	}
-</script>
-
 <script lang="ts">
-	import { query, mutation, graphql, MyLikes } from '$houdini';
+	import { fragment, mutation, graphql, AllLikes } from '$houdini';
 
 	export let id;
+	export let likes: AllLikes;
 
-	const { data, loading, error } = query<MyLikes>(graphql`
-		query MyLikes($userId: uuid!) {
-			like(where: { user_id: { _eq: $userId } }) {
-				media_id
+	const data = fragment(
+		graphql`
+			fragment AllLikes on media @arguments(userId: { type: "uuid!" }) {
+				likes(where: { user_id: { _eq: $userId } }) {
+					media_id
+				}
 			}
-		}
-	`);
+		`,
+		likes
+	);
 
-	$: likes = !($loading || $error) ? $data.like.map(({ media_id }) => media_id) : [];
-	$: like = likes.includes(id);
+	// const { data, loading, error } = query<MyLikes>(graphql`
+	// 	query MyLikes($userId: uuid!) {
+	// 		like(where: { user_id: { _eq: $userId } }) {
+	// 			media_id
+	// 		}
+	// 	}
+	// `);
+
+	// $: likes = !($loading || $error) ? $data.like.map(({ media_id }) => media_id) : [];
+	// $: like = likes.includes(id);
 
 	const addLike = mutation(
 		graphql`

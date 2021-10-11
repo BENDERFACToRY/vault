@@ -1,4 +1,3 @@
-import gql from 'graphql-tag';
 import { query } from '$lib/graphql';
 import { setCookie, getCookies } from '$lib/cookies';
 import { verifyToken, serverToken } from '$lib/jwt';

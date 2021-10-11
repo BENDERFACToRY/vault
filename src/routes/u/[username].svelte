@@ -1,6 +1,4 @@
 <script lang="ts">
-	// import { query } from 'svelte-apollo';
-	import gql from 'graphql-tag';
 	import { session } from '$app/stores';
 
 	const likes = query(gql`
