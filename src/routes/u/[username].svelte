@@ -1,19 +1,11 @@
 <script lang="ts">
-	import { navigating } from '$app/stores';
-	import { query, graphql, GetUser, AllUserLikes } from '$houdini';
 	import { session } from '$app/stores';
+	import { navigating } from '$app/stores';
+	import { query, graphql, GetUser } from '$houdini';
 
-	const { data: likes, error: likesError } = query<AllUserLikes>(graphql`
-		query AllUserLikes {
-			like {
-				media {
-					id
-				}
-			}
-		}
-	`);
+	import Media from '$lib/Media.svelte';
 
-	const { data: user, error: userError } = query<GetUser>(graphql`
+	const { data, error } = query<GetUser>(graphql`
 		query GetUser {
 			user {
 				id
@@ -25,6 +17,7 @@
 					text
 				}
 				likes {
+					media_id
 					media {
 						title
 					}
@@ -42,32 +35,29 @@
 		}
 	`);
 
-	// const data = subscribe(gql`
-	// 	subscription {
-	// 		discord {
-	// 			username
-	// 			roles
-	// 		}
-	// 	}
-	// `);
+	$: [user] = $data.user;
 </script>
 
-{#if $navigating}
-	<p>Loading</p>
-{:else if $likesError}
-	<p>Error: {$likesError}</p>
-{:else}
-	<pre>{JSON.stringify($likes, null, 2)}</pre>
-{/if}
-
 <article>
-	<h2>Data:</h2>
-	<!-- <pre>{JSON.stringify($data, null, 2)}</pre> -->
 	{#if $navigating}
 		<p>Loading</p>
-	{:else if $userError}
-		<p>Error: {$userError}</p>
 	{:else}
-		<pre>{JSON.stringify($user, null, 2)}</pre>
+		<h2>{user.name}</h2>
+		<ul class="roles">
+			{#each user.discord.roles as role}
+				<li>{role}</li>
+			{/each}
+		</ul>
+		<!-- <pre>{JSON.stringify($data, null, 2)}</pre> -->
+
+		{#if user.likes}
+			<Media
+				where={{
+					likes: {
+						user_id: { _eq: $session.user.id }
+					}
+				}}
+			/>
+		{/if}
 	{/if}
 </article>

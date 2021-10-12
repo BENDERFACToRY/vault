@@ -33,6 +33,15 @@ const config = {
 			marshal(val) {
 				return val;
 			}
+		},
+		timestamptz: {
+			type: 'string',
+			unmarshal(val) {
+				return val;
+			},
+			marshal(val) {
+				return val;
+			}
 		}
 	}
 };

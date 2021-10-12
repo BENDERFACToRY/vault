@@ -17,7 +17,7 @@
 	type Column = string | BaseColumn | GetterColumn | ComponentColumn;
 
 	export let columns: Column[];
-	export let data: string[][];
+	export let data: any[][];
 	export let key: string;
 
 	// Assign classes to rows based on conditions

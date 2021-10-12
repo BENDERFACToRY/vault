@@ -1,10 +1,19 @@
+<script context="module" lang="ts">
+	export function AllTracksVariables({ props }) {
+		return props;
+	}
+</script>
+
 <script lang="ts">
+	import { goto } from '$app/navigation';
+
 	import { query, graphql, AllTracks } from '$houdini';
 
 	import { Table, Play, Like, Tags, Link } from '$lib/table';
-
 	import { currentTrack } from '$lib/Player.svelte';
 	import { formatDuration } from '$lib/util';
+
+	export let where = {};
 
 	const getMetadata = ({ stereo_mix }) => `
     ${stereo_mix.media_info.Channels}ch
@@ -13,8 +22,8 @@
   `;
 
 	const { data, loading, error, refetch } = query<AllTracks>(graphql`
-		query AllTracks {
-			media(order_by: [{ likes_aggregate: { count: desc } }, { title: asc }]) {
+		query AllTracks($where: media_bool_exp) {
+			media(order_by: [{ likes_aggregate: { count: desc } }, { title: asc }], where: $where) {
 				title
 				bpm
 				data_folder
@@ -64,7 +73,7 @@
 		data={$data.media}
 	/>
 {:else if $error}
-	<p>Error: {$error}</p>
+	<p>Error: {JSON.stringify($error)}</p>
 {:else if $loading}
 	<p>Loading</p>
 {/if}
