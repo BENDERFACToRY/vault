@@ -1,7 +1,7 @@
 export default {
     name: "GetUser",
     kind: "HoudiniQuery",
-    hash: "5ada799b1025e5293a88ebe728a65174f8a60a5ff7b0465737a1ff13df18c0d6",
+    hash: "661b3648ced08dfecb90e156de0ae8d1c2e7c25e2a70ed036fc50c2f459bef58",
 
     raw: `query GetUser {
   user {
@@ -15,6 +15,7 @@ export default {
       id
     }
     likes {
+      media_id
       media {
         title
         id
@@ -86,6 +87,11 @@ export default {
                     keyRaw: "likes",
 
                     fields: {
+                        media_id: {
+                            type: "uuid",
+                            keyRaw: "media_id"
+                        },
+
                         media: {
                             type: "media",
                             keyRaw: "media",

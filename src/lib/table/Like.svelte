@@ -1,31 +1,9 @@
-<script context="module" lang="ts">
-	import { get } from 'svelte/store';
-	import { session } from '$app/stores';
-	// This is the function for the AllItems query.
-	// Query variable functions must be named <QueryName>Variables.
-	export function MyLikesVariables(): MyLikes$input {
-		// make sure we recognize the value
-		return {
-			userId: get(session).user.id
-		};
-	}
-</script>
-
 <script lang="ts">
-	import { query, mutation, graphql, MyLikes } from '$houdini';
+	import { mutation, graphql } from '$houdini';
 
 	export let id;
-
-	const { data, loading, error, refetch } = query<MyLikes>(graphql`
-		query MyLikes($userId: uuid!) {
-			like(where: { user_id: { _eq: $userId } }) {
-				media_id
-			}
-		}
-	`);
-
-	$: likes = !($loading || $error) ? $data.like.map(({ media_id }) => media_id) : [];
-	$: like = likes.includes(id);
+	export let liked;
+	export let refetch;
 
 	const addLike = mutation(
 		graphql`
@@ -52,7 +30,7 @@
 	);
 
 	const toggle = async () => {
-		if (like) {
+		if (liked) {
 			await removeLike({ id });
 		} else {
 			await addLike({ id });
@@ -61,8 +39,8 @@
 	};
 </script>
 
-<button class:like class="icon" on:click|stopPropagation={toggle}>
-	{like ? 'favorite' : 'favorite_border'}
+<button class:liked class="icon" on:click|stopPropagation={toggle}>
+	{liked ? 'favorite' : 'favorite_border'}
 </button>
 
 <style>
@@ -78,10 +56,10 @@
 		filter: var(--icon-filter-gray-dark);
 	}
 
-	.like {
+	.liked {
 		filter: var(--icon-filter-red);
 	}
-	:global(tr:hover) .like {
+	:global(tr:hover) .liked {
 		filter: var(--icon-filter-red-light);
 	}
 </style>

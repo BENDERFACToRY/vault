@@ -855,6 +855,11 @@ type media {
   data_folder: String!
   id: uuid!
 
+  """
+  A computed field, executes function "media_liked_by_user"
+  """
+  liked: Boolean
+
   """An array relationship"""
   likes(
     """distinct select on columns"""
@@ -890,6 +895,11 @@ type media {
     """filter the rows returned"""
     where: like_bool_exp
   ): like_aggregate!
+
+  """
+  A computed field, executes function "media_likes_count"
+  """
+  likes_count: Int
   recorded_date: date
   season: String
   stereo_mix(

@@ -37,7 +37,7 @@
 		}
 	});
 
-	const { data, loading, error } = query<AllTracks>(graphql`
+	const { data, loading, error, refetch } = query<AllTracks>(graphql`
 		query AllTracks {
 			media(order_by: [{ likes_aggregate: { count: desc } }, { title: asc }]) {
 				title
@@ -47,11 +47,8 @@
 				recorded_date
 				stereo_mix
 				tracks
-				likes_aggregate {
-					aggregate {
-						count
-					}
-				}
+				likes_count
+				liked
 			}
 		}
 	`);
@@ -83,13 +80,13 @@
 				{ label: 'tags', component: Tags, props: ({ tags }) => ({ tags }) },
 				{
 					label: 'likes',
-					getter: ({
-						likes_aggregate: {
-							aggregate: { count }
-						}
-					}) => count
+					getter: ({ likes_count }) => likes_count
 				},
-				{ label: '', component: Like, props: ({ id }) => ({ id, refetch: () => media.refetch() }) }
+				{
+					label: '',
+					component: Like,
+					props: ({ id, liked }) => ({ id, liked, refetch })
+				}
 			]}
 			rowClass={(row) => ({
 				active: row === $currentTrack

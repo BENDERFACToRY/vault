@@ -1,7 +1,7 @@
 export default {
     name: "AllTracks",
     kind: "HoudiniQuery",
-    hash: "1fe8996ee42c81a3f4cfb98d512ba42f83ffdc2938d59ab5c32207403b1d38af",
+    hash: "5986c716277b5b530ff43d64b4f3d6d5f4ec2f796f7a71eec3971cc0cd22e8b7",
 
     raw: `query AllTracks {
   media(order_by: [{likes_aggregate: {count: desc}}, {title: asc}]) {
@@ -12,11 +12,8 @@ export default {
     recorded_date
     stereo_mix
     tracks
-    likes_aggregate {
-      aggregate {
-        count
-      }
-    }
+    likes_count
+    liked
   }
 }
 `,
@@ -64,23 +61,14 @@ export default {
                     keyRaw: "tracks"
                 },
 
-                likes_aggregate: {
-                    type: "like_aggregate",
-                    keyRaw: "likes_aggregate",
+                likes_count: {
+                    type: "Int",
+                    keyRaw: "likes_count"
+                },
 
-                    fields: {
-                        aggregate: {
-                            type: "like_aggregate_fields",
-                            keyRaw: "aggregate",
-
-                            fields: {
-                                count: {
-                                    type: "Int",
-                                    keyRaw: "count"
-                                }
-                            }
-                        }
-                    }
+                liked: {
+                    type: "Boolean",
+                    keyRaw: "liked"
                 }
             }
         }

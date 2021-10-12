@@ -14,6 +14,7 @@ export type GetUser$result = {
             readonly text: string
         })[],
         readonly likes: ({
+            readonly media_id: string,
             readonly media: {
                 readonly title: string
             }

@@ -12,10 +12,7 @@ export type AllTracks$result = {
         readonly recorded_date: string | null,
         readonly stereo_mix: object,
         readonly tracks: object,
-        readonly likes_aggregate: {
-            readonly aggregate: {
-                readonly count: number
-            } | null
-        }
+        readonly likes_count: number | null,
+        readonly liked: boolean | null
     })[]
 };
