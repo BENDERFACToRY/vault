@@ -3,37 +3,6 @@
 	import { setEnvironment } from '$houdini';
 
 	setEnvironment(env);
-
-	// /**
-	//  * @type {import('@sveltejs/kit').Load}
-	//  */
-	// export async function load({ page, session }) {
-	// 	const { token, client } = createClient();
-
-	// 	if (session.token) {
-	// 		console.log('Setting token', session.token);
-	// 		token.set(session.token);
-	// 	} else if (page.path.startsWith('/u')) {
-	// 		return {
-	// 			status: 302,
-	// 			redirect: '/'
-	// 		};
-	// 	} else {
-	// 		console.log('Load layout -> set token null');
-	// 		token.set(null);
-	// 	}
-
-	// 	return {
-	// 		stuff: {
-	// 			token,
-	// 			client
-	// 		},
-	// 		props: {
-	// 			client,
-	// 			token
-	// 		}
-	// 	};
-	// }
 </script>
 
 <script lang="ts">

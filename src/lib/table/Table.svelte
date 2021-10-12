@@ -37,6 +37,8 @@
 		{#each data as row (row[key])}
 			<tr
 				on:click={() => dispatch('click', row)}
+				on:mouseover={() => dispatch('focus', row)}
+				on:focus={() => dispatch('focus', row)}
 				class={rowClass &&
 					Object.entries(rowClass(row))
 						.filter(([cls, enabled]) => enabled)

@@ -3,4 +3,4 @@
 	export let text;
 </script>
 
-<a {href} on:click|stopPropagation={() => false}>{text}</a>
+<a sveltekit:prefetch {href} on:click|stopPropagation={() => false}>{text}</a>

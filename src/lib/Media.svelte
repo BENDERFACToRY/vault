@@ -5,7 +5,7 @@
 </script>
 
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, prefetch } from '$app/navigation';
 
 	import { query, graphql, AllTracks } from '$houdini';
 
@@ -41,6 +41,7 @@
 {#if $data}
 	<Table
 		key="id"
+		on:focus={({ detail: { data_folder } }) => prefetch(`m/${data_folder}`)}
 		on:click={({ detail: { data_folder } }) => goto(`m/${data_folder}`)}
 		columns={[
 			{ label: '', component: Play, props: (track) => ({ track }) },
