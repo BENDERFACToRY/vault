@@ -178,6 +178,26 @@ export async function get({ query, headers }) {
 		if (cookieToken) {
 			const JWTUser = await verifyToken(cookieToken, { ignoreExpiration: true });
 			console.log('Got JWTUser', JWTUser);
+
+			const {
+				user: [existingUser]
+			} = await gqlQuery({
+				query: `
+					query getUserById($id: uuid!) {
+						user(where: { id: { _eq: $id } }) {
+							id
+							discord_id
+							name
+						}
+					}
+				`,
+				variables: {
+					id: JWTUser.id
+				},
+				token: serverToken('oauth-token')
+			});
+			user = existingUser;
+			console.log('Existing user for refresh', user);
 		}
 	} catch (e) {
 		console.log('Invalid token');
@@ -193,26 +213,31 @@ export async function get({ query, headers }) {
 	}
 	console.log('Got user, creating token:', user);
 
-	const JWTUser = {
-		id: user.id,
-		name: user.name,
-		roles: ['user'],
-		default_role: 'user'
-	};
-	const JWToken = createToken(JWTUser, {
-		expiresIn: '1 day',
-		subject: user.id.toString()
-	});
+	let discordRoles = null;
 
 	try {
 		// Try fetching the user's discord roles from the gatekeeper
 		const response = await fetch(`${process.env['GATEKEEPER_URL']}/check/${user.discord_id}`);
 		console.log(process.env['GATEKEEPER_URL'], response.status);
 		const data = await response.json();
-		console.log('Got roles:', data);
+		discordRoles = data.roles;
+		console.log('Got roles:', discordRoles);
 	} catch (e) {
 		console.log("Failing to resolve the user's roles", e);
 	}
+	const roles = discordRoles?.includes('VCA') ? ['user'] : [];
+
+	const JWTUser = {
+		id: user.id,
+		name: user.name,
+		rolesOnDiscord: discordRoles,
+		roles: roles,
+		default_role: roles.length ? 'user' : null
+	};
+	const JWToken = createToken(JWTUser, {
+		expiresIn: '1 day',
+		subject: user.id.toString()
+	});
 
 	// Create a JWT for the user session (a day)
 	return {
@@ -220,7 +245,8 @@ export async function get({ query, headers }) {
 		headers: {
 			'Set-Cookie': [
 				setCookie('token', JWToken, { expires: datetimeAfter(60 * 60 * 25) }),
-				setCookie('state', '', { expires: new Date(1970) })
+				// Only delete state when set
+				state && setCookie('state', '', { expires: new Date(1970) })
 			]
 		},
 		body: {

@@ -13,6 +13,8 @@ body {
 	--blue-light: #7e9edb;
 	--blue-dark: #041537;
 
+	--border-width: 5px;
+
 	/* Converted from color to filter using: https://codepen.io/sosuke/pen/Pjoqqp */
 	--icon-filter-gray: invert(98%) sepia(7%) saturate(457%) hue-rotate(317deg) brightness(85%)
 		contrast(86%);
@@ -34,6 +36,10 @@ body {
 
 a {
 	color: var(--blue);
+	transition: background 0.3s ease-in-out;
+}
+a:focus {
+	outline: var(--blue-light) var(--border-width) solid;
 }
 
 .icon {
@@ -48,7 +54,29 @@ button {
 
 	transition: background 0.3s ease-in-out;
 }
-button:hover,
-button:focus {
+button:hover {
 	background: var(--gray);
+}
+button:focus {
+	outline: var(--blue-light) var(--border-width) solid;
+}
+
+table tr.active {
+	background: var(--gray-light);
+}
+
+p > a,
+p > button {
+	background: var(--gray-light);
+	text-decoration: none;
+	color: var(--blue);
+	padding: 0.2em;
+	font-size: 1em;
+	margin: 0;
+	cursor: pointer;
+}
+
+p > a:hover,
+p > button:hover {
+	background-color: var(--gray-dark);
 }

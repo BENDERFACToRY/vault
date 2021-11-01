@@ -52,25 +52,8 @@ export async function getSession(request) {
 		try {
 			const user = await verifyToken(headerToken);
 
-			const { userData } = await query({
-				query: `
-					query getUserToken($id: uuid!) {
-						userData: user_by_pk(id: $id) {
-							token {
-								access_token
-							}
-							discord {
-								id
-							}
-						}
-					}
-				`,
-				variables: { id: user.id },
-				token: headerToken
-			});
 			return {
 				user,
-				userData,
 				token: headerToken
 			};
 		} catch (e) {

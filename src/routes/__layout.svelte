@@ -54,7 +54,7 @@
 		align-self: flex-end;
 		padding: 0.5rem;
 		margin: 0.5rem;
-		margin-bottom: -5px;
+		margin-bottom: calc(0px - var(--border-width, 5px));
 		background: var(--gray-light);
 	}
 	header {
@@ -66,7 +66,7 @@
 		margin: -8px;
 
 		background: var(--gray);
-		border-bottom: 5px solid var(--black);
+		border-bottom: var(--border-width, 5px) solid var(--black);
 	}
 
 	footer {

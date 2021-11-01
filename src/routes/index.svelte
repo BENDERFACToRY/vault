@@ -3,7 +3,7 @@
 	 * @type {import('@sveltejs/kit').Load}
 	 */
 	export async function load({ session }) {
-		if (!session.user) {
+		if (!session.user?.roles?.length) {
 			return {
 				status: 302,
 				redirect: '/login'
@@ -16,14 +16,7 @@
 </script>
 
 <script lang="ts">
-	import { session } from '$app/stores';
 	import Media from '$lib/Media.svelte';
 </script>
 
 <Media />
-
-<style>
-	:global(table tr.active) {
-		background: var(--gray-light);
-	}
-</style>
