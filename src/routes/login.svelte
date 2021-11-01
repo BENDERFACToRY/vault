@@ -47,13 +47,15 @@
 </script>
 
 {#if $page.query.has('code') && $page.query.has('state')}
-	<h1>Please wait, we're logging you in.</h1>
+	<h1>Please wait,</h1>
+	<p>we're logging you in.</p>
 {:else if !$session.user}
-	<h1>You need to login using <a href="auth/login">discord</a> in order to view any tracks</h1>
+	<h1>Welcome!</h1>
+	<p>Login on <a href="auth/login">discord</a> to get access to the vault.</p>
 {:else if !$session.user.rolesOnDiscord}
 	<h1>Weird,</h1>
 	<p>
-		it seems you have to get on the <a href="https://discord.gg/3QZUz7TKeS" target="_blank"
+		it seems you still have to get on the <a href="https://discord.gg/3QZUz7TKeS" target="_blank"
 			>ModularMayham discord</a
 		>
 	</p>
