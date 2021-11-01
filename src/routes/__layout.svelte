@@ -30,10 +30,10 @@
 
 	<nav>
 		{#if $session.user}
-			<a href="/auth/logout">Logout</a>
+			<a href="/auth/logout" rel="external">Logout</a>
 			<a href="/u/{$session.user.name.toLowerCase()}">{$session.user.name}</a>
 		{:else}
-			<a href="/auth/login">Login</a>
+			<a href="/auth/login" rel="external">Login</a>
 		{/if}
 	</nav>
 </header>

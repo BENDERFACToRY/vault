@@ -15,6 +15,11 @@ export default {
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: 'body',
 		vite: {
+			server: {
+				fs: {
+					allow: ['.']
+				}
+			},
 			resolve: {
 				alias: {
 					$houdini: path.resolve('.', '$houdini')
