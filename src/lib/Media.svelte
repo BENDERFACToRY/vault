@@ -41,14 +41,14 @@
 {#if $data}
 	<Table
 		key="id"
-		on:focus={({ detail: { data_folder } }) => prefetch(`m/${data_folder}`)}
-		on:click={({ detail: { data_folder } }) => goto(`m/${data_folder}`)}
+		on:focus={({ detail: { data_folder } }) => prefetch(`/m/${data_folder}`)}
+		on:click={({ detail: { data_folder } }) => goto(`/m/${data_folder}`)}
 		columns={[
 			{ label: '', component: Play, props: (track) => ({ track }) },
 			{
 				label: 'title',
 				component: Link,
-				props: ({ title, data_folder }) => ({ href: `m/${data_folder}`, text: title })
+				props: ({ title, data_folder }) => ({ href: `/m/${data_folder}`, text: title })
 			},
 			{ label: 'stems', getter: ({ tracks }) => tracks.length },
 			{
