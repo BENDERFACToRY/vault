@@ -59,7 +59,7 @@
 	<p>we're logging you in.</p>
 {:else if !$session.user}
 	<h1>Welcome!</h1>
-	<p>Login on <a href="auth/login">discord</a> to get access to the vault.</p>
+	<p>Login on <a href="auth/login" rel="external">discord</a> to get access to the vault.</p>
 {:else if !$session.user.rolesOnDiscord}
 	<h1>Weird,</h1>
 	<p>
