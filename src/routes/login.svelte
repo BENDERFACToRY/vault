@@ -26,6 +26,14 @@
 			}
 		}
 
+		if (!$session.user.rolesOnDiscord) {
+			refresh();
+		}
+
+		if (!$session.user.rolesOnDiscord.includes('VCA')) {
+			refresh();
+		}
+
 		if ($session.user?.roles?.length) {
 			console.log('Has session -> Login', $session.user);
 			// User is logged in
@@ -80,6 +88,11 @@
 		type "!coin join" in the
 		<a href="https://discord.com/channels/690169153750958091/698470600209072149/">🤖bot-commands</a>
 		channel for your VCA role!
+	</p>
+
+	<p>
+		<b>Step 4</b>
+		<button on:click={refresh}>click here</button> to refresh
 	</p>
 	<p>
 		<b>Need help?</b><br />
