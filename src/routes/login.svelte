@@ -30,7 +30,7 @@
 			refresh();
 		}
 
-		if (!$session.user.rolesOnDiscord.includes('VCA')) {
+		if (!$session.user.rolesOnDiscord?.includes('VCA')) {
 			refresh();
 		}
 
@@ -68,7 +68,7 @@
 		>
 	</p>
 	<p>If you just did, please <button on:click={refresh}>click here</button> or refresh</p>
-{:else if !$session.user.rolesOnDiscord.includes('VCA')}
+{:else if !$session.user.rolesOnDiscord?.includes('VCA')}
 	<h1>Final step is to get into the VCA game!</h1>
 
 	<p>
