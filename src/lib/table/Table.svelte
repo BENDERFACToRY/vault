@@ -6,6 +6,7 @@
 	interface BaseColumn {
 		label: string;
 		style?: string;
+		order?: (dir: string) => [];
 	}
 	interface GetterColumn extends BaseColumn {
 		getter: any;
@@ -20,15 +21,42 @@
 	export let data: any[][];
 	export let key: string;
 
+	export let order: {
+		column: string;
+		direction: 'asc' | 'desc';
+	};
+
 	// Assign classes to rows based on conditions
 	export let rowClass = null;
+
+	const sort = (column: Column) => {
+		console.log(column);
+		if (!column.order) return;
+
+		if (order?.column === column.label) {
+			order.direction = order.direction === 'asc' ? 'desc' : 'asc';
+		} else {
+			order = { column: column.label, direction: 'asc' };
+		}
+	};
 </script>
 
 <table>
 	<thead>
 		<tr>
 			{#each columns as column (column)}
-				<th>{column.label ?? column}</th>
+				<th on:click={() => sort(column)}>
+					{column.label ?? column}
+					<span class="icon">
+						{#if order?.column === column.label}
+							{#if order.direction === 'asc'}
+								arrow_drop_down
+							{:else}
+								arrow_drop_up
+							{/if}
+						{/if}
+					</span>
+				</th>
 			{/each}
 		</tr>
 	</thead>
@@ -80,7 +108,7 @@
 	}
 
 	th {
-		padding: 8px 0;
+		padding: 0.5rem 0.2rem;
 		font-weight: bold;
 		position: sticky;
 	}

@@ -14,15 +14,23 @@
 	import { formatDuration } from '$lib/util';
 
 	export let where = {};
+	export let order_by = [{ title: 'asc' }];
+	let order = {
+		column: 'title',
+		direction: 'asc'
+	};
 
 	const getMetadata = ({ stereo_mix }) => `
-    ${stereo_mix.media_info.Channels}ch
-    ${stereo_mix.media_info.SamplingRate / 1000}Khz
-    ${stereo_mix.media_info.BitDepth}bit
-  `;
+		${stereo_mix.media_info.Channels}ch
+		${stereo_mix.media_info.SamplingRate / 1000}Khz
+		${stereo_mix.media_info.BitDepth}bit
+	`;
 
 	const { data, loading, error, refetch } = query<AllTracks>(graphql`
-		query AllTracks($where: media_bool_exp) {
+		query AllTracks(
+			$where: media_bool_exp
+			$order_by: [media_order_by!] = [{ likes_aggregate: { count: desc } }, { title: asc }]
+		) {
 			media(order_by: [{ likes_aggregate: { count: desc } }, { title: asc }], where: $where) {
 				title
 				bpm
@@ -36,6 +44,49 @@
 			}
 		}
 	`);
+
+	const columns = [
+		{ label: '', component: Play, props: (track) => ({ track }) },
+		{
+			label: 'title',
+			order: (dir) => [{ title: dir }],
+			component: Link,
+			props: ({ title, data_folder }) => ({ href: `/m/${data_folder}`, text: title })
+		},
+		{ label: 'stems', order: (dir) => [{ tracks: dir }], getter: ({ tracks }) => tracks.length },
+		{
+			label: 'duration',
+			getter: ({ stereo_mix }) => formatDuration(stereo_mix.media_info.Duration),
+			style: 'text-align: right;'
+		},
+		{ label: 'metadata', getter: getMetadata },
+		{
+			label: 'tags',
+			order: (dir) => [{ tags_aggregate: { count: dir } }],
+			component: Tags,
+			props: ({ tags }) => ({ tags })
+		},
+		{
+			label: 'likes',
+			order: (dir) => [{ likes_aggregate: { count: dir } }, { title: 'asc' }],
+			getter: ({ likes_count }) => likes_count
+		},
+		{
+			label: '',
+			component: Like,
+			props: ({ id, liked }) => ({ id, liked, refetch })
+		}
+	];
+
+	$: if (order) {
+		const column = columns.find((column) => column.label === order.column);
+		if (column.order) {
+			order_by = column.order(order.direction);
+			refetch({
+				order_by
+			});
+		}
+	}
 </script>
 
 {#if $data}
@@ -43,31 +94,8 @@
 		key="id"
 		on:focus={({ detail: { data_folder } }) => prefetch(`/m/${data_folder}`)}
 		on:click={({ detail: { data_folder } }) => goto(`/m/${data_folder}`)}
-		columns={[
-			{ label: '', component: Play, props: (track) => ({ track }) },
-			{
-				label: 'title',
-				component: Link,
-				props: ({ title, data_folder }) => ({ href: `/m/${data_folder}`, text: title })
-			},
-			{ label: 'stems', getter: ({ tracks }) => tracks.length },
-			{
-				label: 'duration',
-				getter: ({ stereo_mix }) => formatDuration(stereo_mix.media_info.Duration),
-				style: 'text-align: right;'
-			},
-			{ label: 'metadata', getter: getMetadata },
-			{ label: 'tags', component: Tags, props: ({ tags }) => ({ tags }) },
-			{
-				label: 'likes',
-				getter: ({ likes_count }) => likes_count
-			},
-			{
-				label: '',
-				component: Like,
-				props: ({ id, liked }) => ({ id, liked, refetch })
-			}
-		]}
+		bind:order
+		{columns}
 		rowClass={(row) => ({
 			active: row === $currentTrack
 		})}

@@ -21,37 +21,44 @@ const fetchIPFS = async (url, { retries = 3, retryTime = 1000, ...opts } = {}) =
 			console.log('Wrong status', url, res.status);
 		}
 	} catch (e) {
-		console.log('fail', retries, e);
-		await wait(retryTime);
-		return await fetchIPFS(url, { ...opts, retries: retries - 1, retryTime });
+		console.log('fail', retries);
+
+		if (retries) {
+			await wait(retryTime);
+			return await fetchIPFS(url, { ...opts, retries: retries - 1, retryTime });
+		}
+
+		console.log("Failing to fetch", e)
 	}
 };
+
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
 export async function get() {
-	const seasons = await fetchIPFS(`https://ipfs.benderfactory.com/metadata.json`);
-
-	const data = await Promise.all(
-		seasons.map(async (season) => {
-			const data = await fetchIPFS(`https://ipfs.benderfactory.com/${season.path}/metadata.json`);
-			return {
-				path: season.path,
-				...data
-			};
-		})
-	);
-
-	const tracks = data.flatMap(({ title, path, recordings }) =>
+	try {
+		const seasons = await fetchIPFS(`https://ipfs.benderfactory.com/metadata.json`);
+		
+		const data = await Promise.all(
+			seasons.map(async (season) => {
+				const data = await fetchIPFS(`https://ipfs.benderfactory.com/${season.path}/metadata.json`);
+				return {
+					path: season.path,
+					...data
+				};
+			})
+		);
+			
+		const tracks = data.flatMap(({ title, path, recordings }) =>
 		recordings.map((recording) => ({
 			...recording,
 			season: title,
 			data_folder: `${path}/${recording.data_folder}`
 		}))
-	);
-	const token = serverToken('scrape-ipfs');
-	const body = await query({
-		query: `
+		);
+		const token = serverToken('scrape-ipfs');
+		const body = await query({
+			query: `
 			mutation updateMedia($tracks: [media_insert_input!]!) {
 				insert_media(
 					objects: $tracks
@@ -68,17 +75,25 @@ export async function get() {
 							youtube_url
 						]
 					}
-				) {
-					affected_rows
+					) {
+						affected_rows
+					}
 				}
+			`,
+			variables: {
+				tracks: tracks.map(({ tags, recorded_date, ...rest }) => rest)
+			},
+			token
+		});
+		return {
+			body
+		};
+	} catch (e) {
+		return {
+			status: 500,
+			body: {
+				error: 'Failed to scrape'
 			}
-		`,
-		variables: {
-			tracks: tracks.map(({ tags, recorded_date, ...rest }) => rest)
-		},
-		token
-	});
-	return {
-		body
-	};
+		}
+	}
 }
