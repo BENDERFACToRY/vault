@@ -95,7 +95,7 @@ async function discordLogin({ query }): Promise<User> {
 		console.log('found user:', existingUser.name);
 		user = existingUser;
 		// Nuke existing tokens
-		gqlQuery({
+		await gqlQuery({
 			query: `
 				mutation removeTokens($id: uuid!) {
 					delete_oauth_token(where: { user_id: { _eq: $id } }) {
@@ -137,37 +137,12 @@ async function discordLogin({ query }): Promise<User> {
  */
 export async function get({ query, headers }) {
 	// Checks the oauth redirect code, creates or fetches the user, and stores the oauth token info.
+	console.log("----- GET /token")
 	const { state } = getCookies(headers.cookie);
 
 	let user;
 	if (query.has('state') && query.has('code') && state === query.get('state')) {
 		user = await discordLogin({ query });
-	}
-
-	if (query.has('application') && query.has('secret')) {
-		// Tokens for the applications
-		const application = query.get('application');
-		const secret = query.get('secret');
-
-		if (application === 'gatekeeper' && secret === process.env['GATEKEEPER_SECRET']) {
-			return {
-				status: 200,
-				body: {
-					token: createToken(
-						{
-							id: '-1',
-							name: 'gatekeeper',
-							roles: ['gatekeeper'],
-							default_role: 'gatekeeper'
-						},
-						{
-							expiresIn: '30 seconds',
-							subject: '-1'
-						}
-					)
-				}
-			};
-		}
 	}
 
 	// Check token
@@ -176,6 +151,7 @@ export async function get({ query, headers }) {
 	try {
 		// Verify token
 		if (cookieToken) {
+			console.log('----- Verify token')
 			const JWTUser = await verifyToken(cookieToken, { ignoreExpiration: true });
 			console.log('Got JWTUser', JWTUser);
 
@@ -204,6 +180,7 @@ export async function get({ query, headers }) {
 	}
 
 	if (!user) {
+		console.log('--- Invalid parameters')
 		return {
 			status: 400,
 			body: {
@@ -219,9 +196,32 @@ export async function get({ query, headers }) {
 		// Try fetching the user's discord roles from the gatekeeper
 		const response = await fetch(`${process.env['GATEKEEPER_URL']}/check/${user.discord_id}`);
 		console.log(process.env['GATEKEEPER_URL'], response.status);
-		const data = await response.json();
-		discordRoles = data.roles;
-		console.log('Got roles:', discordRoles);
+		console.log(response.headers)
+		if (response.headers.get('content-type').includes('application/json')) {
+			const data = await response.json();
+			discordRoles = data.roles;
+
+			await gqlQuery({
+				query: `
+					mutation setRoles($id: String!, $roles: jsonb!) {
+					update_discord_by_pk(
+						pk_columns: { id:$id },
+						_set: {
+						roles: $roles
+						}
+					) {
+						id roles
+					}
+				}`,
+				variables: { id: user.discord_id, roles: discordRoles },
+				token: serverToken('oauth-token')
+			});
+
+			console.log('Got roles:', discordRoles);
+		} else {
+			console.log("No content-type")
+			console.log(await response.text())
+		}
 	} catch (e) {
 		console.log("Failing to resolve the user's roles", e);
 	}
@@ -240,6 +240,7 @@ export async function get({ query, headers }) {
 	});
 
 	// Create a JWT for the user session (a day)
+	console.log('--- Token ok', JWTUser)
 	return {
 		status: 200,
 		headers: {

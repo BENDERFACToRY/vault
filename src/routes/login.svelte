@@ -60,6 +60,11 @@
 {:else if !$session.user}
 	<h1>Welcome!</h1>
 	<p>Login on <a href="auth/login" rel="external">discord</a> to get access to the vault.</p>
+	<p>
+		All content in the vault is protected under <a
+			href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a
+		>, by logging in you accept these conditions.
+	</p>
 {:else if !$session.user.rolesOnDiscord}
 	<h1>Weird,</h1>
 	<p>

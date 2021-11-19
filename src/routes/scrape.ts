@@ -21,7 +21,7 @@ const fetchIPFS = async (url, { retries = 3, retryTime = 1000, ...opts } = {}) =
 			console.log('Wrong status', url, res.status);
 		}
 	} catch (e) {
-		console.log('fail', retries);
+		console.log('fail', retries, e);
 		await wait(retryTime);
 		return await fetchIPFS(url, { ...opts, retries: retries - 1, retryTime });
 	}
