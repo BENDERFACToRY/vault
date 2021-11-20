@@ -11,7 +11,7 @@
 <script lang="ts">
 	import { graphql, query, GetTrack } from '$houdini';
 
-	import { page } from '$app/stores';
+	import CcNotice from '$lib/CCNotice.svelte';
 
 	import { Table, Tags, Files } from '$lib/table';
 	import { formatDuration } from '$lib/util';
@@ -97,7 +97,5 @@
 		data={[recording.stereo_mix, ...recording.tracks]}
 	/>
 
-	All content in the vault is protected under CC BY-NC-SA 4.
-
-	<h3>Terms of Service: <a href="{path}/ToS.txt">must read before downloading</a></h3>
+	<CcNotice />
 {/if}
