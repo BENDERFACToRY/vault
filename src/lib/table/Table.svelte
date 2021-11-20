@@ -47,13 +47,15 @@
 			{#each columns as column (column)}
 				<th on:click={() => sort(column)}>
 					{column.label ?? column}
-					<span class="icon" class:active={order?.column === column.label}>
-						{#if order.direction === 'asc' || order?.column !== column.label}
-							arrow_drop_down
-						{:else}
-							arrow_drop_up
-						{/if}
-					</span>
+					{#if column.order}
+						<span class="icon" class:active={order?.column === column.label}>
+							{#if order.direction === 'asc' || order?.column !== column.label}
+								arrow_drop_down
+							{:else}
+								arrow_drop_up
+							{/if}
+						</span>
+					{/if}
 				</th>
 			{/each}
 		</tr>

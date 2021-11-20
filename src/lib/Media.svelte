@@ -83,6 +83,7 @@
 		if (column.order) {
 			order_by = column.order(order.direction);
 			refetch({
+				where,
 				order_by
 			});
 		}
