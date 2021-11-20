@@ -31,7 +31,7 @@
 			$where: media_bool_exp
 			$order_by: [media_order_by!] = [{ likes_aggregate: { count: desc } }, { title: asc }]
 		) {
-			media(order_by: [{ likes_aggregate: { count: desc } }, { title: asc }], where: $where) {
+			media(order_by: $order_by, where: $where) {
 				title
 				bpm
 				data_folder

@@ -47,13 +47,11 @@
 			{#each columns as column (column)}
 				<th on:click={() => sort(column)}>
 					{column.label ?? column}
-					<span class="icon">
-						{#if order?.column === column.label}
-							{#if order.direction === 'asc'}
-								arrow_drop_down
-							{:else}
-								arrow_drop_up
-							{/if}
+					<span class="icon" class:active={order?.column === column.label}>
+						{#if order.direction === 'asc' || order?.column !== column.label}
+							arrow_drop_down
+						{:else}
+							arrow_drop_up
 						{/if}
 					</span>
 				</th>
@@ -111,6 +109,12 @@
 		padding: 0.5rem 0.2rem;
 		font-weight: bold;
 		position: sticky;
+	}
+	th > .icon {
+		color: var(--gray-dark);
+	}
+	th > .icon.active {
+		color: var(--black);
 	}
 
 	th:first-child,

@@ -209,6 +209,132 @@ type media_bool_exp = {
     youtube_url: String_comparison_exp | null | undefined
 };
 
+enum order_by {
+    asc = "asc",
+    asc_nulls_first = "asc_nulls_first",
+    asc_nulls_last = "asc_nulls_last",
+    desc = "desc",
+    desc_nulls_first = "desc_nulls_first",
+    desc_nulls_last = "desc_nulls_last"
+}
+
+type comment_max_order_by = {
+    created: order_by | null | undefined,
+    id: order_by | null | undefined,
+    media_id: order_by | null | undefined,
+    media_timestamp: order_by | null | undefined,
+    text: order_by | null | undefined,
+    user_id: order_by | null | undefined
+};
+
+type comment_min_order_by = {
+    created: order_by | null | undefined,
+    id: order_by | null | undefined,
+    media_id: order_by | null | undefined,
+    media_timestamp: order_by | null | undefined,
+    text: order_by | null | undefined,
+    user_id: order_by | null | undefined
+};
+
+type comment_aggregate_order_by = {
+    count: order_by | null | undefined,
+    max: comment_max_order_by | null | undefined,
+    min: comment_min_order_by | null | undefined
+};
+
+type like_max_order_by = {
+    created: order_by | null | undefined,
+    media_id: order_by | null | undefined,
+    user_id: order_by | null | undefined
+};
+
+type like_min_order_by = {
+    created: order_by | null | undefined,
+    media_id: order_by | null | undefined,
+    user_id: order_by | null | undefined
+};
+
+type like_aggregate_order_by = {
+    count: order_by | null | undefined,
+    max: like_max_order_by | null | undefined,
+    min: like_min_order_by | null | undefined
+};
+
+type tag_avg_order_by = {
+    score: order_by | null | undefined
+};
+
+type tag_max_order_by = {
+    media_id: order_by | null | undefined,
+    name: order_by | null | undefined,
+    score: order_by | null | undefined
+};
+
+type tag_min_order_by = {
+    media_id: order_by | null | undefined,
+    name: order_by | null | undefined,
+    score: order_by | null | undefined
+};
+
+type tag_stddev_order_by = {
+    score: order_by | null | undefined
+};
+
+type tag_stddev_pop_order_by = {
+    score: order_by | null | undefined
+};
+
+type tag_stddev_samp_order_by = {
+    score: order_by | null | undefined
+};
+
+type tag_sum_order_by = {
+    score: order_by | null | undefined
+};
+
+type tag_var_pop_order_by = {
+    score: order_by | null | undefined
+};
+
+type tag_var_samp_order_by = {
+    score: order_by | null | undefined
+};
+
+type tag_variance_order_by = {
+    score: order_by | null | undefined
+};
+
+type tag_aggregate_order_by = {
+    avg: tag_avg_order_by | null | undefined,
+    count: order_by | null | undefined,
+    max: tag_max_order_by | null | undefined,
+    min: tag_min_order_by | null | undefined,
+    stddev: tag_stddev_order_by | null | undefined,
+    stddev_pop: tag_stddev_pop_order_by | null | undefined,
+    stddev_samp: tag_stddev_samp_order_by | null | undefined,
+    sum: tag_sum_order_by | null | undefined,
+    var_pop: tag_var_pop_order_by | null | undefined,
+    var_samp: tag_var_samp_order_by | null | undefined,
+    variance: tag_variance_order_by | null | undefined
+};
+
+type media_order_by = {
+    bpm: order_by | null | undefined,
+    comments_aggregate: comment_aggregate_order_by | null | undefined,
+    data_folder: order_by | null | undefined,
+    id: order_by | null | undefined,
+    likes_aggregate: like_aggregate_order_by | null | undefined,
+    recorded_date: order_by | null | undefined,
+    season: order_by | null | undefined,
+    stereo_mix: order_by | null | undefined,
+    tags_aggregate: tag_aggregate_order_by | null | undefined,
+    title: order_by | null | undefined,
+    torrent: order_by | null | undefined,
+    tracks: order_by | null | undefined,
+    youtube_url: order_by | null | undefined
+};
+
 export type AllTracks$input = {
-    where: media_bool_exp | null | undefined
+    where: media_bool_exp | null | undefined,
+    order_by: (media_order_by)[] | null | undefined
 };

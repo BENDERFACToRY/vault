@@ -1707,7 +1707,7 @@ type oauth_token {
   scope(
     """JSON select path"""
     path: String
-  ): jsonb!
+  ): jsonb
   user_id: uuid!
 }
 

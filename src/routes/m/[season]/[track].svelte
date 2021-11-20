@@ -97,5 +97,7 @@
 		data={[recording.stereo_mix, ...recording.tracks]}
 	/>
 
+	All content in the vault is protected under CC BY-NC-SA 4.
+
 	<h3>Terms of Service: <a href="{path}/ToS.txt">must read before downloading</a></h3>
 {/if}

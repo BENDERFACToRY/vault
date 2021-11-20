@@ -1,10 +1,10 @@
 export default {
     name: "AllTracks",
     kind: "HoudiniQuery",
-    hash: "67c52b0efdf383b4d07b487aebbcded4cb4e2320c6c6a749e74c1ada6d8fd678",
+    hash: "87bfb61e2f38a6dab441c5e45cb6887361f0671048130b5a6ae1670f6d09db37",
 
-    raw: `query AllTracks($where: media_bool_exp) {
-  media(order_by: [{likes_aggregate: {count: desc}}, {title: asc}], where: $where) {
+    raw: `query AllTracks($where: media_bool_exp, $order_by: [media_order_by!] = [{likes_aggregate: {count: desc}}, {title: asc}]) {
+  media(order_by: $order_by, where: $where) {
     title
     bpm
     data_folder
@@ -23,7 +23,7 @@ export default {
     selection: {
         media: {
             type: "media",
-            keyRaw: "media(order_by: [{likes_aggregate: {count: desc}}, {title: asc}], where: $where)",
+            keyRaw: "media(order_by: $order_by, where: $where)",
 
             fields: {
                 title: {
@@ -76,7 +76,8 @@ export default {
 
     input: {
         fields: {
-            where: "media_bool_exp"
+            where: "media_bool_exp",
+            order_by: "media_order_by"
         },
 
         types: {
@@ -270,6 +271,122 @@ export default {
                 torrent: "String_comparison_exp",
                 tracks: "jsonb_comparison_exp",
                 youtube_url: "String_comparison_exp"
+            },
+
+            comment_max_order_by: {
+                created: "order_by",
+                id: "order_by",
+                media_id: "order_by",
+                media_timestamp: "order_by",
+                text: "order_by",
+                user_id: "order_by"
+            },
+
+            comment_min_order_by: {
+                created: "order_by",
+                id: "order_by",
+                media_id: "order_by",
+                media_timestamp: "order_by",
+                text: "order_by",
+                user_id: "order_by"
+            },
+
+            comment_aggregate_order_by: {
+                count: "order_by",
+                max: "comment_max_order_by",
+                min: "comment_min_order_by"
+            },
+
+            like_max_order_by: {
+                created: "order_by",
+                media_id: "order_by",
+                user_id: "order_by"
+            },
+
+            like_min_order_by: {
+                created: "order_by",
+                media_id: "order_by",
+                user_id: "order_by"
+            },
+
+            like_aggregate_order_by: {
+                count: "order_by",
+                max: "like_max_order_by",
+                min: "like_min_order_by"
+            },
+
+            tag_avg_order_by: {
+                score: "order_by"
+            },
+
+            tag_max_order_by: {
+                media_id: "order_by",
+                name: "order_by",
+                score: "order_by"
+            },
+
+            tag_min_order_by: {
+                media_id: "order_by",
+                name: "order_by",
+                score: "order_by"
+            },
+
+            tag_stddev_order_by: {
+                score: "order_by"
+            },
+
+            tag_stddev_pop_order_by: {
+                score: "order_by"
+            },
+
+            tag_stddev_samp_order_by: {
+                score: "order_by"
+            },
+
+            tag_sum_order_by: {
+                score: "order_by"
+            },
+
+            tag_var_pop_order_by: {
+                score: "order_by"
+            },
+
+            tag_var_samp_order_by: {
+                score: "order_by"
+            },
+
+            tag_variance_order_by: {
+                score: "order_by"
+            },
+
+            tag_aggregate_order_by: {
+                avg: "tag_avg_order_by",
+                count: "order_by",
+                max: "tag_max_order_by",
+                min: "tag_min_order_by",
+                stddev: "tag_stddev_order_by",
+                stddev_pop: "tag_stddev_pop_order_by",
+                stddev_samp: "tag_stddev_samp_order_by",
+                sum: "tag_sum_order_by",
+                var_pop: "tag_var_pop_order_by",
+                var_samp: "tag_var_samp_order_by",
+                variance: "tag_variance_order_by"
+            },
+
+            media_order_by: {
+                bpm: "order_by",
+                comments_aggregate: "comment_aggregate_order_by",
+                data_folder: "order_by",
+                id: "order_by",
+                likes_aggregate: "like_aggregate_order_by",
+                recorded_date: "order_by",
+                season: "order_by",
+                stereo_mix: "order_by",
+                tags_aggregate: "tag_aggregate_order_by",
+                title: "order_by",
+                torrent: "order_by",
+                tracks: "order_by",
+                youtube_url: "order_by"
             }
         }
     },
