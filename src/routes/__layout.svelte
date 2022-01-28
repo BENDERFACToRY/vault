@@ -63,7 +63,6 @@
 		height: 5rem;
 		padding: calc(5px + env(safe-area-inset-top)) calc(5px + env(safe-area-inset-right)) 5px
 			calc(5px + env(safe-area-inset-left));
-		margin: -8px;
 
 		background: var(--gray);
 		border-bottom: var(--border-width, 5px) solid var(--black);

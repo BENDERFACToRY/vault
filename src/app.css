@@ -32,6 +32,8 @@ body {
 	font-family: 'Maven Pro';
 	color: var(--black);
 	background: var(--gray);
+	padding: 0;
+	margin: 0;
 }
 
 a {
